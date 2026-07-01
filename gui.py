@@ -1,22 +1,24 @@
 from qtpy.QtWidgets import (
     QWidget, QPushButton, QVBoxLayout, QHBoxLayout,
     QFileDialog, QMessageBox, QTableView, QLabel, QMenu, QTabWidget,
-    QRadioButton, QButtonGroup, QLineEdit, QTextEdit, QProgressBar, 
+    QRadioButton, QButtonGroup, QLineEdit, QTextEdit, QProgressBar,
     QSpinBox, QFrame
 )
 from qtpy.QtCore import QAbstractTableModel, Qt, QThread, Signal
-from qtpy.QtGui import QColor, QPixmap, QFont   # ← добавили QPixmap и QFont
+from qtpy.QtGui import QColor, QPixmap, QFont
 from table_reader import UniversalTableReader
 from files_compressor import Compressor
 import asyncio
 from files_downloader import FileDownloader
+import pandas as pd
+from openpyxl import load_workbook
+import os
 
 
 # ============================================================================
-# MODEL (без изменений)
+# MODEL
 # ============================================================================
 class PandasModel(QAbstractTableModel):
-    """Model for displaying pandas DataFrame in QTableView."""
     def __init__(self, df):
         super().__init__()
         self._df = df
@@ -33,7 +35,6 @@ class PandasModel(QAbstractTableModel):
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
             return str(self._df.iloc[index.row(), index.column()])
-
         if role == Qt.BackgroundRole:
             if index.column() == self.url_col:
                 return QColor("#cce5ff")
@@ -41,7 +42,6 @@ class PandasModel(QAbstractTableModel):
                 return QColor("#d4edda")
             if index.column() == self.brand_col:
                 return QColor("#fff3cd")
-
         return None
 
     def headerData(self, section, orientation, role):
@@ -56,8 +56,9 @@ class PandasModel(QAbstractTableModel):
             return name
         return None
 
+
 # ============================================================================
-# WORKERS (без изменений)
+# DOWNLOAD WORKER
 # ============================================================================
 class DownloadWorker(QThread):
     progress = Signal(int)
@@ -126,6 +127,9 @@ class DownloadWorker(QThread):
             self.downloader.cancel()
 
 
+# ============================================================================
+# COMPRESSOR WORKER
+# ============================================================================
 class CompressorWorker(QThread):
     progress = Signal(int)
     log = Signal(str)
@@ -165,18 +169,88 @@ class CompressorWorker(QThread):
         if self.compressor:
             self.compressor.cancel()
 
-            # ============================================================================
+
+# ============================================================================
+# SPLITTER WORKER (НОВЫЙ)
+# ============================================================================
+class SplitterWorker(QThread):
+    progress = Signal(int)
+    log = Signal(str)
+    finished = Signal()
+    result = Signal(int)
+
+    def __init__(self, input_file, output_dir, chunk_size):
+        super().__init__()
+        self.input_file = input_file
+        self.output_dir = output_dir
+        self.chunk_size = chunk_size
+        self.is_cancelled = False
+
+    def cancel(self):
+        self.is_cancelled = True
+
+    def run(self):
+        try:
+            os.makedirs(self.output_dir, exist_ok=True)
+            self.log.emit(f"Открываем файл: {self.input_file}")
+
+            wb = load_workbook(filename=self.input_file, read_only=True)
+            ws = wb.active
+            headers = [cell.value for cell in next(ws.iter_rows(min_row=1, max_row=1))]
+            total_rows = ws.max_row
+
+            self.log.emit(f"Всего строк в файле: {total_rows:,}")
+
+            row_start = 2
+            file_index = 1
+            files_created = 0
+
+            while row_start <= total_rows:
+                if self.is_cancelled:
+                    self.log.emit("Разбиение отменено пользователем.")
+                    break
+
+                row_end = min(row_start + self.chunk_size - 1, total_rows)
+
+                data = []
+                for row in ws.iter_rows(min_row=row_start, max_row=row_end, values_only=True):
+                    data.append(row)
+
+                df = pd.DataFrame(data, columns=headers)
+
+                output_file = os.path.join(self.output_dir, f'part_{file_index:03d}.xlsx')
+                df.to_excel(output_file, index=False)
+
+                self.log.emit(f'✓ Создан: part_{file_index:03d}.xlsx — {len(df):,} строк')
+                self.progress.emit(file_index)
+
+                row_start = row_end + 1
+                file_index += 1
+                files_created += 1
+
+            wb.close()
+            self.result.emit(files_created)
+            self.log.emit("\n✅ Разбиение успешно завершено!")
+
+        except Exception as e:
+            self.log.emit(f"Ошибка: {str(e)}")
+        finally:
+            self.finished.emit()
+
+
+# ============================================================================
 # MAIN WINDOW
 # ============================================================================
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("FilesDownloader")
-        self.resize(900, 700)
+        self.resize(950, 720)
 
         self.reader = UniversalTableReader()
         self.worker = None
         self.compress_worker = None
+        self.splitter_worker = None
         self.compressor = Compressor()
         self.compress_selected_folder = None
 
@@ -188,39 +262,50 @@ class MainWindow(QWidget):
 
         self.tab_download = self._create_download_tab()
         self.tab_compress = self._create_compress_tab()
+        self.tab_split = self._create_split_tab()          # Новая вкладка
 
         self.tabs.addTab(self.tab_download, "Скачать файлы по ссылкам")
         self.tabs.addTab(self.tab_compress, "Упаковать файлы в архив")
+        self.tabs.addTab(self.tab_split, "Разбивка файла")
+
         self.tabs.setCurrentIndex(0)
 
+    # ====================== DOWNLOAD TAB ======================
     def _create_download_tab(self):
-        """Create the download files tab with logo in the middle."""
         tab = QWidget()
         layout = QVBoxLayout()
 
-        # Картинка посередине вкладки
-        logo_frame = QFrame()
-        logo_layout = QVBoxLayout(logo_frame)
-        logo_layout.setContentsMargins(0, 0, 0, 0)
+        # ====================== ЛОГОТИП + ЗАГОЛОВОК В ОДНУ СТРОКУ ======================
+        header_layout = QHBoxLayout()
 
+        # Логотип
         self.download_logo = QLabel()
         self.download_logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        pixmap = QPixmap("logo.png")   # файл должен лежать рядом с run.py
-
+        pixmap = QPixmap("logo.png")
         if pixmap.isNull():
-            self.download_logo.setText("🖼️ Скачивание изображений")
-            self.download_logo.setFont(QFont("Segoe UI", 18, QFont.Weight.Bold))
-            self.download_logo.setStyleSheet("color: #2c3e50;")
+            self.download_logo.setText("🖼️")
+            self.download_logo.setFont(QFont("Segoe UI", 28))
         else:
             scaled = pixmap.scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio, 
                                  Qt.TransformationMode.SmoothTransformation)
             self.download_logo.setPixmap(scaled)
 
-        logo_layout.addWidget(self.download_logo)
-        layout.addWidget(logo_frame)
+        # Заголовок
+        title = QLabel("Скачивание изображений по ссылкам")
+        title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
-        # Остальная часть вкладки
+        header_layout.addStretch()
+        header_layout.addWidget(self.download_logo)
+        header_layout.addSpacing(15)
+        header_layout.addWidget(title)
+        header_layout.addStretch()
+
+        layout.addLayout(header_layout)
+        layout.addSpacing(20)
+        # ============================================================================
+
+        # Стек экранов (старт / предпросмотр / процесс)
         self.download_stack_layout = QVBoxLayout()
         layout.addLayout(self.download_stack_layout)
 
@@ -239,104 +324,72 @@ class MainWindow(QWidget):
         tab.setLayout(layout)
         return tab
 
-
+    # (Все методы download_... оставлены как у тебя)
     def _create_download_start_screen(self):
-        """Create start screen for download tab."""
         screen = QWidget()
         layout = QVBoxLayout()
-
         btn = QPushButton("Выбрать файл")
         btn.setFixedWidth(150)
         btn.clicked.connect(self.download_open_file)
-
         layout.addWidget(btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         placeholder = QLabel("Поддерживаемые файлы в формате .csv, .xls, .xlsx")
         placeholder.setStyleSheet("color: gray; font-size: 14px;")
-
         placeholder_layout = QHBoxLayout()
         placeholder_layout.addStretch()
         placeholder_layout.addWidget(placeholder)
         placeholder_layout.addStretch()
-
         layout.addLayout(placeholder_layout)
         layout.addStretch()
-
         screen.setLayout(layout)
         return screen
 
     def _create_download_preview_screen(self):
-        """Create preview screen for download tab."""
         screen = QWidget()
         layout = QVBoxLayout()
-
-        # Top buttons
         top = QHBoxLayout()
-
         self.download_back_btn = QPushButton("Назад")
         self.download_back_btn.clicked.connect(self.download_go_back)
-
         self.download_forward_btn = QPushButton("Вперёд")
         self.download_forward_btn.setEnabled(False)
         self.download_forward_btn.clicked.connect(self.download_process_data)
-
         top.addWidget(self.download_back_btn)
         top.addStretch()
         top.addWidget(self.download_forward_btn)
-
         layout.addSpacing(10)
         layout.addLayout(top)
         layout.addSpacing(20)
-
-        # Table
         self.download_table = QTableView()
         layout.addWidget(self.download_table)
-
         screen.setLayout(layout)
         return screen
 
     def _create_download_process_screen(self):
-        """Create process screen for download tab."""
         screen = QWidget()
         layout = QVBoxLayout()
-
-        # -------- TOP BAR --------
         top_layout = QHBoxLayout()
-
         self.download_back_process_btn = QPushButton("Назад")
         self.download_back_process_btn.setFixedWidth(100)
-        self.download_back_process_btn.clicked.connect(
-            self.download_go_back_to_preview
-        )
-
+        self.download_back_process_btn.clicked.connect(self.download_go_back_to_preview)
         top_layout.addWidget(self.download_back_process_btn)
         top_layout.addStretch()
-
         layout.addLayout(top_layout)
         layout.addSpacing(20)
 
-        # -------- SELECT DIR BUTTON --------
         center_layout = QHBoxLayout()
-
         self.download_dir_button = QPushButton("Выбрать папку для скачивания")
         self.download_dir_button.setFixedWidth(260)
         self.download_dir_button.clicked.connect(self.download_select_directory)
-
         center_layout.addStretch()
         center_layout.addWidget(self.download_dir_button)
         center_layout.addStretch()
-
         layout.addLayout(center_layout)
         layout.addSpacing(20)
 
-        # -------- DELIMITER --------
         delim_layout = QHBoxLayout()
-
         delim_label = QLabel("Разделитель ссылок:")
-
         self.download_delimiter_input = QLineEdit()
         self.download_delimiter_input.setFixedWidth(40)
-
         delim_layout.addStretch()
         delim_layout.addWidget(delim_label)
         delim_layout.addSpacing(10)
@@ -345,59 +398,42 @@ class MainWindow(QWidget):
         layout.addLayout(delim_layout)
         layout.addSpacing(20)
 
-        # -------- HEADERS RADIO --------
         headers_layout = QHBoxLayout()
-
         headers_label = QLabel("Пропустить первую строку (заголовки)?")
-
         self.download_radio_skip = QRadioButton("Пропустить")
         self.download_radio_no_skip = QRadioButton("Не пропускать")
-
         self.download_headers_group = QButtonGroup()
         self.download_headers_group.addButton(self.download_radio_skip)
         self.download_headers_group.addButton(self.download_radio_no_skip)
-
         self.download_radio_skip.setChecked(True)
         self.download_radio_skip.toggled.connect(self.download_update_headers)
-
         headers_layout.addStretch()
         headers_layout.addWidget(headers_label)
         headers_layout.addSpacing(10)
         headers_layout.addWidget(self.download_radio_skip)
         headers_layout.addWidget(self.download_radio_no_skip)
         headers_layout.addStretch()
-
         layout.addLayout(headers_layout)
         layout.addSpacing(20)
 
-        # -------- START/CANCEL BUTTON --------
         start_layout = QHBoxLayout()
-
         self.download_start_button = QPushButton("Начать")
         self.download_start_button.setFixedWidth(260)
-        self.download_start_button.clicked.connect(
-            self.download_on_start_cancel_clicked
-        )
-
+        self.download_start_button.clicked.connect(self.download_on_start_cancel_clicked)
         start_layout.addStretch()
         start_layout.addWidget(self.download_start_button)
         start_layout.addStretch()
-
         layout.addLayout(start_layout)
         layout.addSpacing(20)
 
-        # -------- PROGRESS --------
         self.download_progress = QProgressBar()
         self.download_progress.setValue(0)
         self.download_progress.setEnabled(False)
-
         layout.addWidget(self.download_progress)
         layout.addSpacing(10)
 
-        # -------- LOG --------
         self.download_log_output = QTextEdit()
         self.download_log_output.setReadOnly(True)
-
         layout.addWidget(self.download_log_output)
 
         screen.setLayout(layout)
@@ -641,17 +677,15 @@ class MainWindow(QWidget):
         new_screen.show()
 
     # ========================================================================
-    # TAB 2: COMPRESS FILES
+    # COMPRESS TAB (оставлен как был)
     # ========================================================================
     def _create_compress_tab(self):
         tab = QWidget()
         layout = QVBoxLayout()
         self.compress_stack_layout = QVBoxLayout()
         layout.addLayout(self.compress_stack_layout)
-
         self.compress_start_screen = self._create_compress_start_screen()
         self.compress_params_screen = self._create_compress_params_screen()
-
         self.compress_stack_layout.addWidget(self.compress_start_screen)
         tab.setLayout(layout)
         return tab
@@ -940,3 +974,144 @@ class MainWindow(QWidget):
         # Add new screen
         self.compress_stack_layout.addWidget(new_screen)
         new_screen.show()
+
+
+# ====================== SPLIT TAB ======================
+    def _create_split_tab(self):
+        tab = QWidget()
+        layout = QVBoxLayout()
+
+        # ====================== ЛОГОТИП + ЗАГОЛОВОК В ОДНУ СТРОКУ ======================
+        header_layout = QHBoxLayout()
+
+        # Логотип
+        self.split_logo = QLabel()
+        self.split_logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        pixmap = QPixmap("logo.png")
+        if pixmap.isNull():
+            self.split_logo.setText("🖼️")
+            self.split_logo.setFont(QFont("Segoe UI", 28))
+        else:
+            scaled = pixmap.scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio, 
+                                 Qt.TransformationMode.SmoothTransformation)
+            self.split_logo.setPixmap(scaled)
+
+        # Заголовок
+        title = QLabel("Разбивка большого Excel-файла на части")
+        title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
+        title.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+
+        header_layout.addStretch()
+        header_layout.addWidget(self.split_logo)
+        header_layout.addSpacing(15)
+        header_layout.addWidget(title)
+        header_layout.addStretch()
+
+        layout.addLayout(header_layout)
+        layout.addSpacing(25)
+
+        file_layout = QHBoxLayout()
+        self.split_file_btn = QPushButton("Выбрать Excel файл")
+        self.split_file_btn.setFixedWidth(240)
+        self.split_file_btn.clicked.connect(self.split_select_file)
+        file_layout.addStretch()
+        file_layout.addWidget(self.split_file_btn)
+        file_layout.addStretch()
+        layout.addLayout(file_layout)
+        layout.addSpacing(10)
+
+        out_layout = QHBoxLayout()
+        self.split_output_btn = QPushButton("Выбрать папку для сохранения")
+        self.split_output_btn.setFixedWidth(240)
+        self.split_output_btn.clicked.connect(self.split_select_output_dir)
+        out_layout.addStretch()
+        out_layout.addWidget(self.split_output_btn)
+        out_layout.addStretch()
+        layout.addLayout(out_layout)
+        layout.addSpacing(15)
+
+        chunk_layout = QHBoxLayout()
+        chunk_label = QLabel("Строк в одном файле:")
+        self.split_chunk_spin = QSpinBox()
+        self.split_chunk_spin.setFixedWidth(140)
+        self.split_chunk_spin.setMinimum(1000)
+        self.split_chunk_spin.setMaximum(1000000)
+        self.split_chunk_spin.setValue(150000)
+        self.split_chunk_spin.setSingleStep(10000)
+        chunk_layout.addStretch()
+        chunk_layout.addWidget(chunk_label)
+        chunk_layout.addWidget(self.split_chunk_spin)
+        chunk_layout.addStretch()
+        layout.addLayout(chunk_layout)
+        layout.addSpacing(30)
+
+        start_layout = QHBoxLayout()
+        self.split_start_btn = QPushButton("Начать разбиение")
+        self.split_start_btn.setFixedWidth(260)
+        self.split_start_btn.clicked.connect(self.split_on_start_clicked)
+        start_layout.addStretch()
+        start_layout.addWidget(self.split_start_btn)
+        start_layout.addStretch()
+        layout.addLayout(start_layout)
+        layout.addSpacing(20)
+
+        self.split_progress = QProgressBar()
+        self.split_progress.setValue(0)
+        layout.addWidget(self.split_progress)
+        layout.addSpacing(10)
+
+        self.split_log = QTextEdit()
+        self.split_log.setReadOnly(True)
+        layout.addWidget(self.split_log)
+
+        tab.setLayout(layout)
+        return tab
+
+
+
+    def split_select_file(self):
+        path, _ = QFileDialog.getOpenFileName(self, "Выберите Excel файл", "", "Excel (*.xlsx *.xls)")
+        if path:
+            self.split_input_file = path
+            self.split_log.append(f"Выбран файл: {path}")
+
+    def split_select_output_dir(self):
+        directory = QFileDialog.getExistingDirectory(self, "Выберите папку для сохранения")
+        if directory:
+            self.split_output_dir = directory
+            self.split_log.append(f"Папка сохранения: {directory}")
+
+    def split_on_start_clicked(self):
+        if self.splitter_worker and self.splitter_worker.isRunning():
+            self.splitter_worker.cancel()
+            self.split_start_btn.setText("Начать разбиение")
+            return
+
+        if not hasattr(self, 'split_input_file') or not hasattr(self, 'split_output_dir'):
+            QMessageBox.warning(self, "Ошибка", "Сначала выберите файл и папку!")
+            return
+
+        chunk_size = self.split_chunk_spin.value()
+
+        self.split_log.clear()
+        self.split_log.append("Запуск разбиения...\n")
+        self.split_progress.setValue(0)
+        self.split_progress.setMaximum(100)
+
+        self.splitter_worker = SplitterWorker(
+            self.split_input_file,
+            self.split_output_dir,
+            chunk_size
+        )
+
+        self.splitter_worker.log.connect(self.split_log.append)
+        self.splitter_worker.progress.connect(self.split_progress.setValue)
+        self.splitter_worker.result.connect(lambda count: self.split_log.append(f"\n✅ Создано файлов: {count}"))
+        self.splitter_worker.finished.connect(self.split_on_finished)
+
+        self.splitter_worker.start()
+        self.split_start_btn.setText("Отмена")
+
+    def split_on_finished(self):
+        self.split_progress.setValue(100)          # ← ИСПРАВЛЕНИЕ
+        self.split_start_btn.setText("Начать разбиение")
