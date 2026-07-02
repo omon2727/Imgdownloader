@@ -21,4 +21,5 @@ pyinstaller --onefile --windowed --clean `
   --icon=logo.ico `
   --add-data "logo.png;." `
   --add-data "logo.ico;." `
+  --manifest filedownloader.manifest `
   run.py
