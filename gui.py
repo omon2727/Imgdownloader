@@ -207,7 +207,7 @@ class SplitterWorker(QThread):
 
             while row_start <= total_rows:
                 if self.is_cancelled:
-                    self.log.emit("Разбиение отменено пользователем.")
+                    self.log.emit("Разбивка отменена пользователем.")
                     break
 
                 row_end = min(row_start + self.chunk_size - 1, total_rows)
@@ -230,7 +230,7 @@ class SplitterWorker(QThread):
 
             wb.close()
             self.result.emit(files_created)
-            self.log.emit("\n✅ Разбиение успешно завершено!")
+            self.log.emit("\n✅ Разбивка успешно завершена!")
 
         except Exception as e:
             self.log.emit(f"Ошибка: {str(e)}")
@@ -1046,7 +1046,7 @@ class MainWindow(QWidget):
         layout.addSpacing(30)
 
         start_layout = QHBoxLayout()
-        self.split_start_btn = QPushButton("Начать разбиение")
+        self.split_start_btn = QPushButton("Начать разбивку")
         self.split_start_btn.setFixedWidth(260)
         self.split_start_btn.clicked.connect(self.split_on_start_clicked)
         start_layout.addStretch()
@@ -1084,7 +1084,7 @@ class MainWindow(QWidget):
     def split_on_start_clicked(self):
         if self.splitter_worker and self.splitter_worker.isRunning():
             self.splitter_worker.cancel()
-            self.split_start_btn.setText("Начать разбиение")
+            self.split_start_btn.setText("Начать разбивку")
             return
 
         if not hasattr(self, 'split_input_file') or not hasattr(self, 'split_output_dir'):
@@ -1114,4 +1114,4 @@ class MainWindow(QWidget):
 
     def split_on_finished(self):
         self.split_progress.setValue(100)          # ← ИСПРАВЛЕНИЕ
-        self.split_start_btn.setText("Начать разбиение")
+        self.split_start_btn.setText("Начать разбивку")

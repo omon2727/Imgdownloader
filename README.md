@@ -16,4 +16,4 @@
 
 
 для сборки в папку
-pyinstaller --onedir --windowed --name=FilesDownloader run.py 
+pyinstaller --onefile --windowed --clean ^ --name=FilesDownloader ^ --add-data "logo.png;." ^ run.py 
