@@ -15,5 +15,10 @@
 <img width="893" height="606" alt="изображение" src="https://github.com/user-attachments/assets/37a080d4-87de-44cd-8b95-130a8d408e4f" />
 
 
-для сборки в папку
-pyinstaller --onefile --windowed --clean ^ --name=FilesDownloader ^ --add-data "logo.png;." ^ run.py 
+для сборки 
+pyinstaller --onefile --windowed --clean `
+  --name=RemzonaDownloader `
+  --icon=logo.ico `
+  --add-data "logo.png;." `
+  --add-data "logo.ico;." `
+  run.py

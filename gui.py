@@ -1,3 +1,5 @@
+import sys
+import os
 from qtpy.QtWidgets import (
     QWidget, QPushButton, QVBoxLayout, QHBoxLayout,
     QFileDialog, QMessageBox, QTableView, QLabel, QMenu, QTabWidget,
@@ -5,14 +7,22 @@ from qtpy.QtWidgets import (
     QSpinBox, QFrame
 )
 from qtpy.QtCore import QAbstractTableModel, Qt, QThread, Signal
-from qtpy.QtGui import QColor, QPixmap, QFont
+from qtpy.QtGui import QColor, QPixmap, QFont, QIcon   # ← Добавили QIcon
 from table_reader import UniversalTableReader
 from files_compressor import Compressor
 import asyncio
 from files_downloader import FileDownloader
 import pandas as pd
 from openpyxl import load_workbook
-import os
+
+# ====================== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ======================
+def get_resource_path(relative_path):
+    """Возвращает путь к файлу — работает и в .exe, и при обычном запуске"""
+    if hasattr(sys, '_MEIPASS'):
+        # Запущено из PyInstaller
+        return os.path.join(sys._MEIPASS, relative_path)
+    return relative_path
+# =====================================================================
 
 
 # ============================================================================
@@ -244,7 +254,13 @@ class SplitterWorker(QThread):
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("FilesDownloader")
+        # === УСТАНОВКА ИКОНКИ ОКНА ===
+        icon_path = get_resource_path("logo.png")
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
+        else:
+            print("Предупреждение: logo.png не найден")
+        self.setWindowTitle("RemzonaDownloader")
         self.resize(950, 720)
 
         self.reader = UniversalTableReader()
@@ -281,7 +297,7 @@ class MainWindow(QWidget):
         # Логотип
         self.download_logo = QLabel()
         self.download_logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        pixmap = QPixmap("logo.png")
+        pixmap = QPixmap(get_resource_path("logo.png"))
         if pixmap.isNull():
             self.download_logo.setText("🖼️")
             self.download_logo.setFont(QFont("Segoe UI", 28))
@@ -987,7 +1003,7 @@ class MainWindow(QWidget):
         # Логотип
         self.split_logo = QLabel()
         self.split_logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        pixmap = QPixmap("logo.png")
+        pixmap = QPixmap(get_resource_path("logo.png"))
         if pixmap.isNull():
             self.split_logo.setText("🖼️")
             self.split_logo.setFont(QFont("Segoe UI", 28))
