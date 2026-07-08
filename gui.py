@@ -7,7 +7,7 @@ from qtpy.QtWidgets import (
     QSpinBox, QFrame
 )
 from qtpy.QtCore import QAbstractTableModel, Qt, QThread, Signal
-from qtpy.QtGui import QColor, QPixmap, QFont, QIcon   # ← Добавили QIcon
+from qtpy.QtGui import QColor, QPixmap, QFont, QIcon
 from table_reader import UniversalTableReader
 from files_compressor import Compressor
 import asyncio
@@ -207,20 +207,23 @@ class SplitterWorker(QThread):
             wb = load_workbook(filename=self.input_file, read_only=True)
             ws = wb.active
             headers = [cell.value for cell in next(ws.iter_rows(min_row=1, max_row=1))]
-            total_rows = ws.max_row
 
-            self.log.emit(f"Всего строк в файле: {total_rows:,}")
+            original_name = os.path.splitext(os.path.basename(self.input_file))[0]
+            total_rows = ws.max_row - 1  # без заголовка
+            total_parts = (total_rows + self.chunk_size - 1) // self.chunk_size
+
+            self.log.emit(f"Всего строк: {total_rows:,} | Будет создано частей: {total_parts}")
 
             row_start = 2
             file_index = 1
             files_created = 0
 
-            while row_start <= total_rows:
+            while row_start <= ws.max_row:
                 if self.is_cancelled:
                     self.log.emit("Разбивка отменена пользователем.")
                     break
 
-                row_end = min(row_start + self.chunk_size - 1, total_rows)
+                row_end = min(row_start + self.chunk_size - 1, ws.max_row)
 
                 data = []
                 for row in ws.iter_rows(min_row=row_start, max_row=row_end, values_only=True):
@@ -228,11 +231,14 @@ class SplitterWorker(QThread):
 
                 df = pd.DataFrame(data, columns=headers)
 
-                output_file = os.path.join(self.output_dir, f'part_{file_index:03d}.xlsx')
+                output_file = os.path.join(self.output_dir, f'{original_name}_{file_index:03d}.xlsx')
                 df.to_excel(output_file, index=False)
 
-                self.log.emit(f'✓ Создан: part_{file_index:03d}.xlsx — {len(df):,} строк')
-                self.progress.emit(file_index)
+                self.log.emit(f'✓ Создан: {os.path.basename(output_file)} — {len(df):,} строк')
+
+                # Правильный процент
+                progress_value = int((file_index / total_parts) * 100)
+                self.progress.emit(progress_value)
 
                 row_start = row_end + 1
                 file_index += 1
@@ -1050,7 +1056,7 @@ class MainWindow(QWidget):
         chunk_label = QLabel("Строк в одном файле:")
         self.split_chunk_spin = QSpinBox()
         self.split_chunk_spin.setFixedWidth(140)
-        self.split_chunk_spin.setMinimum(1000)
+        self.split_chunk_spin.setMinimum(100)
         self.split_chunk_spin.setMaximum(1000000)
         self.split_chunk_spin.setValue(150000)
         self.split_chunk_spin.setSingleStep(10000)
@@ -1110,7 +1116,7 @@ class MainWindow(QWidget):
         chunk_size = self.split_chunk_spin.value()
 
         self.split_log.clear()
-        self.split_log.append("Запуск разбиения...\n")
+        self.split_log.append("Запуск разбивки...\n")
         self.split_progress.setValue(0)
         self.split_progress.setMaximum(100)
 
