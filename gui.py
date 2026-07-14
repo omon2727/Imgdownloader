@@ -14,6 +14,8 @@ import asyncio
 from files_downloader import FileDownloader
 import pandas as pd
 from openpyxl import load_workbook
+from pathlib import Path
+from datetime import datetime
 
 # ====================== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ======================
 def get_resource_path(relative_path):
@@ -66,6 +68,79 @@ class PandasModel(QAbstractTableModel):
             return name
         return None
 
+    # ============================================================================
+# CONVERTER WORKER (НОВЫЙ)
+# ============================================================================
+class ConverterWorker(QThread):
+    progress = Signal(int)
+    log = Signal(str)
+    finished = Signal()
+    result = Signal(int)
+
+    def __init__(self, source_folder, format_choice):
+        super().__init__()
+        self.source_folder = source_folder
+        self.format_choice = format_choice  # "1" или "2"
+        self.is_cancelled = False
+
+    def cancel(self):
+        self.is_cancelled = True
+
+    def run(self):
+        try:
+            source_path = Path(self.source_folder)
+            if self.format_choice == "1":
+                file_ext = ".txt"
+                format_name = "Текст Юникод"
+                sep = '\t'
+                encoding = 'utf-16'
+                lineterminator = '\r\n'
+            else:
+                file_ext = ".csv"
+                format_name = "CSV (разделитель ;)"
+                sep = ';'
+                encoding = 'utf-8-sig'
+                lineterminator = '\r\n'
+
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            output_folder = source_path / f"{format_name.replace(' ', '_')}_{timestamp}"
+            output_folder.mkdir(parents=True, exist_ok=True)
+
+            self.log.emit(f"Создана папка: {output_folder}\n")
+
+            excel_files = list(source_path.glob("*.xlsx")) + list(source_path.glob("*.XLSX"))
+            excel_files = sorted(set(excel_files))  # уникальные
+
+            self.log.emit(f"Найдено Excel-файлов: {len(excel_files)}\n")
+
+            for i, file_path in enumerate(excel_files, 1):
+                if self.is_cancelled:
+                    self.log.emit("Конвертация отменена.")
+                    break
+
+                try:
+                    self.log.emit(f"Обрабатываю: {file_path.name}")
+                    df = pd.read_excel(file_path, sheet_name=0)
+
+                    output_filename = file_path.stem + file_ext
+                    output_path = output_folder / output_filename
+
+                    df.to_csv(output_path, sep=sep, index=False, encoding=encoding, lineterminator=lineterminator)
+
+                    self.log.emit(f" ✓ Готово: {output_filename} ({len(df)} строк)")
+                    self.progress.emit(int((i / len(excel_files)) * 100))
+
+                except Exception as e:
+                    self.log.emit(f" ✗ Ошибка {file_path.name}: {e}")
+
+            self.result.emit(len(excel_files))
+            self.log.emit("\n✅ Конвертация завершена!")
+            self.log.emit(f"Результаты в: {output_folder}")
+
+        except Exception as e:
+            self.log.emit(f"Критическая ошибка: {e}")
+        finally:
+            self.finished.emit()
 
 # ============================================================================
 # DOWNLOAD WORKER
@@ -273,6 +348,7 @@ class MainWindow(QWidget):
         self.worker = None
         self.compress_worker = None
         self.splitter_worker = None
+        self.converter_worker = None
         self.compressor = Compressor()
         self.compress_selected_folder = None
 
@@ -284,47 +360,153 @@ class MainWindow(QWidget):
 
         self.tab_download = self._create_download_tab()
         self.tab_compress = self._create_compress_tab()
-        self.tab_split = self._create_split_tab()          # Новая вкладка
+        self.tab_split = self._create_split_tab()   
+        self.tab_converter = self._create_converter_tab()
 
         self.tabs.addTab(self.tab_download, "Скачать файлы по ссылкам")
         self.tabs.addTab(self.tab_compress, "Упаковать файлы в архив")
         self.tabs.addTab(self.tab_split, "Разбивка файла")
+        self.tabs.addTab(self.tab_converter, "Конвертер Excel")
 
         self.tabs.setCurrentIndex(0)
 
-    # ====================== DOWNLOAD TAB ======================
-    def _create_download_tab(self):
-        tab = QWidget()
-        layout = QVBoxLayout()
-
-        # ====================== ЛОГОТИП + ЗАГОЛОВОК В ОДНУ СТРОКУ ======================
+        # ====================== ОБЩАЯ ФУНКЦИЯ ДЛЯ ЗАГОЛОВКА ======================
+    def create_header(self, title_text):
         header_layout = QHBoxLayout()
+        logo = QLabel()
+        logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # Логотип
-        self.download_logo = QLabel()
-        self.download_logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         pixmap = QPixmap(get_resource_path("logo.png"))
         if pixmap.isNull():
-            self.download_logo.setText("🖼️")
-            self.download_logo.setFont(QFont("Segoe UI", 28))
+            logo.setText("🖼️")
+            logo.setFont(QFont("Segoe UI", 28))
         else:
-            scaled = pixmap.scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio, 
+            scaled = pixmap.scaled(65, 65, Qt.AspectRatioMode.KeepAspectRatio, 
                                  Qt.TransformationMode.SmoothTransformation)
-            self.download_logo.setPixmap(scaled)
+            logo.setPixmap(scaled)
 
-        # Заголовок
-        title = QLabel("Скачивание изображений по ссылкам")
+        title = QLabel(title_text)
         title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
         title.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
         header_layout.addStretch()
-        header_layout.addWidget(self.download_logo)
+        header_layout.addWidget(logo)
         header_layout.addSpacing(15)
         header_layout.addWidget(title)
         header_layout.addStretch()
+        return header_layout
+    # ============================================================================
 
-        layout.addLayout(header_layout)
+
+
+        # ====================== CONVERTER TAB ======================
+    def _create_converter_tab(self):
+        tab = QWidget()
+        layout = QVBoxLayout()
+        layout.addLayout(self.create_header("Конвертер Excel → TXT / CSV"))
         layout.addSpacing(20)
+
+        btn_layout = QHBoxLayout()
+        self.conv_folder_btn = QPushButton("Выбрать папку с Excel файлами")
+        self.conv_folder_btn.setFixedWidth(280)
+        self.conv_folder_btn.clicked.connect(self.conv_select_folder)
+        btn_layout.addStretch()
+        btn_layout.addWidget(self.conv_folder_btn)
+        btn_layout.addStretch()
+        layout.addLayout(btn_layout)
+        layout.addSpacing(20)
+
+        format_layout = QHBoxLayout()
+        format_label = QLabel("Формат вывода:")
+        self.conv_radio_txt = QRadioButton("Текст Юникод (.txt)")
+        self.conv_radio_csv = QRadioButton("CSV с разделителем ; (.csv)")
+        self.conv_radio_txt.setChecked(True)
+
+        format_layout.addStretch()
+        format_layout.addWidget(format_label)
+        format_layout.addWidget(self.conv_radio_txt)
+        format_layout.addWidget(self.conv_radio_csv)
+        format_layout.addStretch()
+        layout.addLayout(format_layout)
+        layout.addSpacing(30)
+
+        start_layout = QHBoxLayout()
+        self.conv_start_btn = QPushButton("Начать конвертацию")
+        self.conv_start_btn.setFixedWidth(260)
+        self.conv_start_btn.clicked.connect(self.conv_on_start_clicked)
+        start_layout.addStretch()
+        start_layout.addWidget(self.conv_start_btn)
+        start_layout.addStretch()
+        layout.addLayout(start_layout)
+        layout.addSpacing(20)
+
+        self.conv_progress = QProgressBar()
+        layout.addWidget(self.conv_progress)
+        layout.addSpacing(10)
+
+        self.conv_log = QTextEdit()
+        self.conv_log.setReadOnly(True)
+        layout.addWidget(self.conv_log)
+
+        tab.setLayout(layout)
+        return tab
+
+    def conv_select_folder(self):
+        directory = QFileDialog.getExistingDirectory(self, "Выберите папку с Excel файлами")
+        if directory:
+            self.conv_folder = directory
+            self.conv_log.append(f"Выбрана папка: {directory}")
+
+    def conv_on_start_clicked(self):
+        if self.converter_worker and self.converter_worker.isRunning():
+            self.converter_worker.cancel()
+            self.conv_start_btn.setText("Начать конвертацию")
+            return
+
+        if not hasattr(self, 'conv_folder'):
+            QMessageBox.warning(self, "Ошибка", "Сначала выберите папку с Excel файлами!")
+            return
+
+        choice = "1" if self.conv_radio_txt.isChecked() else "2"
+
+        self.conv_log.clear()
+        self.conv_log.append("Запуск конвертации...\n")
+        self.conv_progress.setValue(0)
+        self.conv_progress.setMaximum(100)
+
+        self.converter_worker = ConverterWorker(self.conv_folder, choice)
+        self.converter_worker.log.connect(self.conv_log.append)
+        self.converter_worker.progress.connect(self.conv_progress.setValue)
+        self.converter_worker.result.connect(lambda c: self.conv_log.append(f"\n✅ Обработано файлов: {c}"))
+        self.converter_worker.finished.connect(self.conv_on_finished)
+
+        self.converter_worker.start()
+        self.conv_start_btn.setText("Отмена")
+
+    def conv_on_finished(self):
+        self.conv_start_btn.setText("Начать конвертацию")
+
+   # ====================== DOWNLOAD TAB ======================
+    def _create_download_tab(self):
+        tab = QWidget()
+        layout = QVBoxLayout()
+        layout.addLayout(self.create_header("Скачивание изображений по ссылкам"))
+        layout.addSpacing(20)
+
+        self.download_stack_layout = QVBoxLayout()
+        layout.addLayout(self.download_stack_layout)
+
+        self.download_start_screen = self._create_download_start_screen()
+        self.download_preview_screen = self._create_download_preview_screen()
+        self.download_process_screen = self._create_download_process_screen()
+
+        self.download_screens = [self.download_start_screen, self.download_preview_screen, self.download_process_screen]
+        self.download_stack_layout.addWidget(self.download_start_screen)
+
+        tab.setLayout(layout)
+        return tab
+
+
         # ============================================================================
 
         # Стек экранов (старт / предпросмотр / процесс)
@@ -704,11 +886,16 @@ class MainWindow(QWidget):
     def _create_compress_tab(self):
         tab = QWidget()
         layout = QVBoxLayout()
+        layout.addLayout(self.create_header("Упаковка файлов в архив"))
+        layout.addSpacing(20)
+
         self.compress_stack_layout = QVBoxLayout()
         layout.addLayout(self.compress_stack_layout)
+
         self.compress_start_screen = self._create_compress_start_screen()
         self.compress_params_screen = self._create_compress_params_screen()
         self.compress_stack_layout.addWidget(self.compress_start_screen)
+
         tab.setLayout(layout)
         return tab
 
@@ -1002,34 +1189,7 @@ class MainWindow(QWidget):
     def _create_split_tab(self):
         tab = QWidget()
         layout = QVBoxLayout()
-
-        # ====================== ЛОГОТИП + ЗАГОЛОВОК В ОДНУ СТРОКУ ======================
-        header_layout = QHBoxLayout()
-
-        # Логотип
-        self.split_logo = QLabel()
-        self.split_logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        pixmap = QPixmap(get_resource_path("logo.png"))
-        if pixmap.isNull():
-            self.split_logo.setText("🖼️")
-            self.split_logo.setFont(QFont("Segoe UI", 28))
-        else:
-            scaled = pixmap.scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio, 
-                                 Qt.TransformationMode.SmoothTransformation)
-            self.split_logo.setPixmap(scaled)
-
-        # Заголовок
-        title = QLabel("Разбивка большого Excel-файла на части")
-        title.setFont(QFont("Segoe UI", 14, QFont.Weight.Bold))
-        title.setAlignment(Qt.AlignmentFlag.AlignVCenter)
-
-        header_layout.addStretch()
-        header_layout.addWidget(self.split_logo)
-        header_layout.addSpacing(15)
-        header_layout.addWidget(title)
-        header_layout.addStretch()
-
-        layout.addLayout(header_layout)
+        layout.addLayout(self.create_header("Разбивка большого Excel-файла на части"))
         layout.addSpacing(25)
 
         file_layout = QHBoxLayout()
