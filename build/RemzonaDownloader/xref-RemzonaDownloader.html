@@ -1391,6 +1391,17 @@ imported by:
  &#8226;   <a href="#bs4.element">bs4.element</a>
  &#8226;   <a href="#bs4.filter">bs4.filter</a>
  &#8226;   <a href="#bs4.formatter">bs4.formatter</a>
+ &#8226;   <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet._utils">chardet._utils</a>
+ &#8226;   <a href="#chardet._version">chardet._version</a>
+ &#8226;   <a href="#chardet.detector">chardet.detector</a>
+ &#8226;   <a href="#chardet.enums">chardet.enums</a>
+ &#8226;   <a href="#chardet.equivalences">chardet.equivalences</a>
+ &#8226;   <a href="#chardet.pipeline">chardet.pipeline</a>
+ &#8226;   <a href="#chardet.pipeline.binary">chardet.pipeline.binary</a>
+ &#8226;   <a href="#chardet.pipeline.bom">chardet.pipeline.bom</a>
+ &#8226;   <a href="#chardet.pipeline.markup">chardet.pipeline.markup</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
  &#8226;   <a href="#charset_normalizer">charset_normalizer</a>
  &#8226;   <a href="#charset_normalizer.api">charset_normalizer.api</a>
  &#8226;   <a href="#charset_normalizer.cd">charset_normalizer.cd</a>
@@ -5495,9 +5506,9 @@ imported by:
  &#8226;   <a href="#files_downloader">files_downloader</a>
  &#8226;   <a href="#google.auth._exponential_backoff">google.auth._exponential_backoff</a>
  &#8226;   <a href="#google.auth._regional_access_boundary_utils">google.auth._regional_access_boundary_utils</a>
- &#8226;   <a href="#gui">gui</a>
  &#8226;   <a href="#unittest.async_case">unittest.async_case</a>
  &#8226;   <a href="#unittest.mock">unittest.mock</a>
+ &#8226;   <a href="#workers.download_worker">workers.download_worker</a>
 
   </div>
 
@@ -7883,11 +7894,661 @@ imported by:
 
 <div class="node">
   <a name="chardet"></a>
-  <a target="code" href="" type="text/plain"><tt>chardet</tt></a>
-<span class="moduletype">MissingModule</span>  <div class="import">
+  <a target="code" href="///C:/Users/user/AppData/Local/Programs/Python/Python311/Lib/site-packages/chardet/__init__.py" type="text/plain"><tt>chardet</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#__future__">__future__</a>
+ &#8226;   <a href="#chardet._utils">chardet._utils</a>
+ &#8226;   <a href="#chardet._version">chardet._version</a>
+ &#8226;   <a href="#chardet.detector">chardet.detector</a>
+ &#8226;   <a href="#chardet.enums">chardet.enums</a>
+ &#8226;   <a href="#chardet.equivalences">chardet.equivalences</a>
+ &#8226;   <a href="#chardet.pipeline">chardet.pipeline</a>
+ &#8226;   <a href="#chardet.pipeline.ascii">chardet.pipeline.ascii</a>
+ &#8226;   <a href="#chardet.pipeline.ascii__mypyc">chardet.pipeline.ascii__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.binary">chardet.pipeline.binary</a>
+ &#8226;   <a href="#chardet.pipeline.bom">chardet.pipeline.bom</a>
+ &#8226;   <a href="#chardet.pipeline.confusion">chardet.pipeline.confusion</a>
+ &#8226;   <a href="#chardet.pipeline.confusion__mypyc">chardet.pipeline.confusion__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.escape">chardet.pipeline.escape</a>
+ &#8226;   <a href="#chardet.pipeline.escape__mypyc">chardet.pipeline.escape__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.magic">chardet.pipeline.magic</a>
+ &#8226;   <a href="#chardet.pipeline.magic__mypyc">chardet.pipeline.magic__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.markup">chardet.pipeline.markup</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator__mypyc">chardet.pipeline.orchestrator__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.statistical">chardet.pipeline.statistical</a>
+ &#8226;   <a href="#chardet.pipeline.statistical__mypyc">chardet.pipeline.statistical__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.structural">chardet.pipeline.structural</a>
+ &#8226;   <a href="#chardet.pipeline.structural__mypyc">chardet.pipeline.structural__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.utf1632">chardet.pipeline.utf1632</a>
+ &#8226;   <a href="#chardet.pipeline.utf1632__mypyc">chardet.pipeline.utf1632__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.utf8">chardet.pipeline.utf8</a>
+ &#8226;   <a href="#chardet.pipeline.utf8__mypyc">chardet.pipeline.utf8__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.validity">chardet.pipeline.validity</a>
+ &#8226;   <a href="#chardet.pipeline.validity__mypyc">chardet.pipeline.validity__mypyc</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
+ &#8226;   <a href="#collections.abc">collections.abc</a>
+
+  </div>
+  <div class="import">
 imported by:
     <a href="#bs4.dammit">bs4.dammit</a>
+ &#8226;   <a href="#chardet._utils">chardet._utils</a>
+ &#8226;   <a href="#chardet._version">chardet._version</a>
+ &#8226;   <a href="#chardet.detector">chardet.detector</a>
+ &#8226;   <a href="#chardet.enums">chardet.enums</a>
+ &#8226;   <a href="#chardet.equivalences">chardet.equivalences</a>
+ &#8226;   <a href="#chardet.models">chardet.models</a>
+ &#8226;   <a href="#chardet.pipeline">chardet.pipeline</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
  &#8226;   <a href="#requests">requests</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet._utils"></a>
+  <a target="code" href="///C:/Users/user/AppData/Local/Programs/Python/Python311/Lib/site-packages/chardet/_utils.py" type="text/plain"><tt>chardet._utils</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#__future__">__future__</a>
+ &#8226;   <a href="#chardet">chardet</a>
+ &#8226;   <a href="#warnings">warnings</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.detector">chardet.detector</a>
+ &#8226;   <a href="#chardet.pipeline.binary">chardet.pipeline.binary</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet._version"></a>
+  <a target="code" href="///C:/Users/user/AppData/Local/Programs/Python/Python311/Lib/site-packages/chardet/_version.py" type="text/plain"><tt>chardet._version</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#__future__">__future__</a>
+ &#8226;   <a href="#chardet">chardet</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.detector"></a>
+  <a target="code" href="///C:/Users/user/AppData/Local/Programs/Python/Python311/Lib/site-packages/chardet/detector.py" type="text/plain"><tt>chardet.detector</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#__future__">__future__</a>
+ &#8226;   <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet._utils">chardet._utils</a>
+ &#8226;   <a href="#chardet.enums">chardet.enums</a>
+ &#8226;   <a href="#chardet.equivalences">chardet.equivalences</a>
+ &#8226;   <a href="#chardet.pipeline">chardet.pipeline</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
+ &#8226;   <a href="#collections.abc">collections.abc</a>
+ &#8226;   <a href="#types">types</a>
+ &#8226;   <a href="#typing">typing</a>
+ &#8226;   <a href="#warnings">warnings</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.enums"></a>
+  <a target="code" href="///C:/Users/user/AppData/Local/Programs/Python/Python311/Lib/site-packages/chardet/enums.py" type="text/plain"><tt>chardet.enums</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#__future__">__future__</a>
+ &#8226;   <a href="#chardet">chardet</a>
+ &#8226;   <a href="#enum">enum</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.detector">chardet.detector</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.equivalences"></a>
+  <a target="code" href="///C:/Users/user/AppData/Local/Programs/Python/Python311/Lib/site-packages/chardet/equivalences.py" type="text/plain"><tt>chardet.equivalences</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#__future__">__future__</a>
+ &#8226;   <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.pipeline">chardet.pipeline</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
+ &#8226;   <a href="#collections.abc">collections.abc</a>
+ &#8226;   <a href="#unicodedata">unicodedata</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.detector">chardet.detector</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.models"></a>
+  <a target="code" href="///C:/Users/user/AppData/Local/Programs/Python/Python311/Lib/site-packages/chardet/models/__init__.py" type="text/plain"><tt>chardet.models</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
+ &#8226;   <a href="#functools">functools</a>
+ &#8226;   <a href="#importlib.resources">importlib.resources</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#struct">struct</a>
+ &#8226;   <a href="#warnings">warnings</a>
+ &#8226;   <a href="#zlib">zlib</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet.pipeline.confusion">chardet.pipeline.confusion</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+ &#8226;   <a href="#chardet.pipeline.statistical">chardet.pipeline.statistical</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline"></a>
+  <a target="code" href="///C:/Users/user/AppData/Local/Programs/Python/Python311/Lib/site-packages/chardet/pipeline/__init__.py" type="text/plain"><tt>chardet.pipeline</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#__future__">__future__</a>
+ &#8226;   <a href="#chardet">chardet</a>
+ &#8226;   <a href="#dataclasses">dataclasses</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.detector">chardet.detector</a>
+ &#8226;   <a href="#chardet.equivalences">chardet.equivalences</a>
+ &#8226;   <a href="#chardet.pipeline.ascii">chardet.pipeline.ascii</a>
+ &#8226;   <a href="#chardet.pipeline.ascii__mypyc">chardet.pipeline.ascii__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.binary">chardet.pipeline.binary</a>
+ &#8226;   <a href="#chardet.pipeline.bom">chardet.pipeline.bom</a>
+ &#8226;   <a href="#chardet.pipeline.confusion">chardet.pipeline.confusion</a>
+ &#8226;   <a href="#chardet.pipeline.confusion__mypyc">chardet.pipeline.confusion__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.escape">chardet.pipeline.escape</a>
+ &#8226;   <a href="#chardet.pipeline.escape__mypyc">chardet.pipeline.escape__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.magic">chardet.pipeline.magic</a>
+ &#8226;   <a href="#chardet.pipeline.magic__mypyc">chardet.pipeline.magic__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.markup">chardet.pipeline.markup</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator__mypyc">chardet.pipeline.orchestrator__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.statistical">chardet.pipeline.statistical</a>
+ &#8226;   <a href="#chardet.pipeline.statistical__mypyc">chardet.pipeline.statistical__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.structural">chardet.pipeline.structural</a>
+ &#8226;   <a href="#chardet.pipeline.structural__mypyc">chardet.pipeline.structural__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.utf1632">chardet.pipeline.utf1632</a>
+ &#8226;   <a href="#chardet.pipeline.utf1632__mypyc">chardet.pipeline.utf1632__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.utf8">chardet.pipeline.utf8</a>
+ &#8226;   <a href="#chardet.pipeline.utf8__mypyc">chardet.pipeline.utf8__mypyc</a>
+ &#8226;   <a href="#chardet.pipeline.validity">chardet.pipeline.validity</a>
+ &#8226;   <a href="#chardet.pipeline.validity__mypyc">chardet.pipeline.validity__mypyc</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.ascii"></a>
+  <tt>chardet.pipeline.ascii</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\ascii.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.ascii__mypyc"></a>
+  <tt>chardet.pipeline.ascii__mypyc</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\ascii__mypyc.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.binary"></a>
+  <a target="code" href="///C:/Users/user/AppData/Local/Programs/Python/Python311/Lib/site-packages/chardet/pipeline/binary.py" type="text/plain"><tt>chardet.pipeline.binary</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#__future__">__future__</a>
+ &#8226;   <a href="#chardet._utils">chardet._utils</a>
+ &#8226;   <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.bom"></a>
+  <a target="code" href="///C:/Users/user/AppData/Local/Programs/Python/Python311/Lib/site-packages/chardet/pipeline/bom.py" type="text/plain"><tt>chardet.pipeline.bom</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#__future__">__future__</a>
+ &#8226;   <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.confusion"></a>
+  <tt>chardet.pipeline.confusion</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\confusion.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.models">chardet.models</a>
+ &#8226;   <a href="#chardet.pipeline">chardet.pipeline</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
+ &#8226;   <a href="#functools">functools</a>
+ &#8226;   <a href="#importlib.resources">importlib.resources</a>
+ &#8226;   <a href="#struct">struct</a>
+ &#8226;   <a href="#warnings">warnings</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.confusion__mypyc"></a>
+  <tt>chardet.pipeline.confusion__mypyc</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\confusion__mypyc.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.escape"></a>
+  <tt>chardet.pipeline.escape</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\escape.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.escape__mypyc"></a>
+  <tt>chardet.pipeline.escape__mypyc</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\escape__mypyc.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.magic"></a>
+  <tt>chardet.pipeline.magic</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\magic.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.magic__mypyc"></a>
+  <tt>chardet.pipeline.magic__mypyc</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\magic__mypyc.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.markup"></a>
+  <a target="code" href="///C:/Users/user/AppData/Local/Programs/Python/Python311/Lib/site-packages/chardet/pipeline/markup.py" type="text/plain"><tt>chardet.pipeline.markup</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#__future__">__future__</a>
+ &#8226;   <a href="#chardet.pipeline">chardet.pipeline</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
+ &#8226;   <a href="#re">re</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.orchestrator"></a>
+  <tt>chardet.pipeline.orchestrator</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\orchestrator.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet._utils">chardet._utils</a>
+ &#8226;   <a href="#chardet.enums">chardet.enums</a>
+ &#8226;   <a href="#chardet.models">chardet.models</a>
+ &#8226;   <a href="#chardet.pipeline">chardet.pipeline</a>
+ &#8226;   <a href="#chardet.pipeline.ascii">chardet.pipeline.ascii</a>
+ &#8226;   <a href="#chardet.pipeline.binary">chardet.pipeline.binary</a>
+ &#8226;   <a href="#chardet.pipeline.bom">chardet.pipeline.bom</a>
+ &#8226;   <a href="#chardet.pipeline.confusion">chardet.pipeline.confusion</a>
+ &#8226;   <a href="#chardet.pipeline.escape">chardet.pipeline.escape</a>
+ &#8226;   <a href="#chardet.pipeline.magic">chardet.pipeline.magic</a>
+ &#8226;   <a href="#chardet.pipeline.markup">chardet.pipeline.markup</a>
+ &#8226;   <a href="#chardet.pipeline.statistical">chardet.pipeline.statistical</a>
+ &#8226;   <a href="#chardet.pipeline.structural">chardet.pipeline.structural</a>
+ &#8226;   <a href="#chardet.pipeline.utf1632">chardet.pipeline.utf1632</a>
+ &#8226;   <a href="#chardet.pipeline.utf8">chardet.pipeline.utf8</a>
+ &#8226;   <a href="#chardet.pipeline.validity">chardet.pipeline.validity</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
+ &#8226;   <a href="#warnings">warnings</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.detector">chardet.detector</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.orchestrator__mypyc"></a>
+  <tt>chardet.pipeline.orchestrator__mypyc</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\orchestrator__mypyc.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.statistical"></a>
+  <tt>chardet.pipeline.statistical</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\statistical.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.models">chardet.models</a>
+ &#8226;   <a href="#chardet.pipeline">chardet.pipeline</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.statistical__mypyc"></a>
+  <tt>chardet.pipeline.statistical__mypyc</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\statistical__mypyc.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.structural"></a>
+  <tt>chardet.pipeline.structural</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\structural.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
+ &#8226;   <a href="#collections.abc">collections.abc</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.structural__mypyc"></a>
+  <tt>chardet.pipeline.structural__mypyc</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\structural__mypyc.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.utf1632"></a>
+  <tt>chardet.pipeline.utf1632</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\utf1632.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+ &#8226;   <a href="#unicodedata">unicodedata</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.utf1632__mypyc"></a>
+  <tt>chardet.pipeline.utf1632__mypyc</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\utf1632__mypyc.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.utf8"></a>
+  <tt>chardet.pipeline.utf8</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\utf8.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.utf8__mypyc"></a>
+  <tt>chardet.pipeline.utf8__mypyc</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\utf8__mypyc.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.validity"></a>
+  <tt>chardet.pipeline.validity</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\validity.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.pipeline.validity__mypyc"></a>
+  <tt>chardet.pipeline.validity__mypyc</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\Lib\site-packages\chardet\pipeline\validity__mypyc.cp311-win_amd64.pyd</tt></span>  <div class="import">
+imports:
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="chardet.registry"></a>
+  <a target="code" href="///C:/Users/user/AppData/Local/Programs/Python/Python311/Lib/site-packages/chardet/registry.py" type="text/plain"><tt>chardet.registry</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#__future__">__future__</a>
+ &#8226;   <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.enums">chardet.enums</a>
+ &#8226;   <a href="#codecs">codecs</a>
+ &#8226;   <a href="#collections.abc">collections.abc</a>
+ &#8226;   <a href="#dataclasses">dataclasses</a>
+ &#8226;   <a href="#functools">functools</a>
+ &#8226;   <a href="#types">types</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.detector">chardet.detector</a>
+ &#8226;   <a href="#chardet.equivalences">chardet.equivalences</a>
+ &#8226;   <a href="#chardet.models">chardet.models</a>
+ &#8226;   <a href="#chardet.pipeline.confusion">chardet.pipeline.confusion</a>
+ &#8226;   <a href="#chardet.pipeline.markup">chardet.pipeline.markup</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
+ &#8226;   <a href="#chardet.pipeline.statistical">chardet.pipeline.statistical</a>
+ &#8226;   <a href="#chardet.pipeline.structural">chardet.pipeline.structural</a>
+ &#8226;   <a href="#chardet.pipeline.validity">chardet.pipeline.validity</a>
 
   </div>
 
@@ -8187,6 +8848,7 @@ imported by:
     <a href="#_pickle">_pickle</a>
  &#8226;   <a href="#aiohttp.client_reqrep">aiohttp.client_reqrep</a>
  &#8226;   <a href="#bs4.dammit">bs4.dammit</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
  &#8226;   <a href="#charset_normalizer.cd">charset_normalizer.cd</a>
  &#8226;   <a href="#charset_normalizer.constant">charset_normalizer.constant</a>
  &#8226;   <a href="#charset_normalizer.utils">charset_normalizer.utils</a>
@@ -8609,6 +9271,11 @@ imported by:
  &#8226;   <a href="#attr._compat">attr._compat</a>
  &#8226;   <a href="#attr._make">attr._make</a>
  &#8226;   <a href="#cgi">cgi</a>
+ &#8226;   <a href="#chardet">chardet</a>
+ &#8226;   <a href="#chardet.detector">chardet.detector</a>
+ &#8226;   <a href="#chardet.equivalences">chardet.equivalences</a>
+ &#8226;   <a href="#chardet.pipeline.structural">chardet.pipeline.structural</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
  &#8226;   <a href="#configparser">configparser</a>
  &#8226;   <a href="#cryptography.hazmat.bindings.openssl.binding">cryptography.hazmat.bindings.openssl.binding</a>
  &#8226;   <a href="#cryptography.utils">cryptography.utils</a>
@@ -10956,7 +11623,9 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#cryptography.hazmat.primitives.serialization.ssh">cryptography.hazmat.primitives.serialization.ssh</a>
+    <a href="#chardet.pipeline">chardet.pipeline</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
+ &#8226;   <a href="#cryptography.hazmat.primitives.serialization.ssh">cryptography.hazmat.primitives.serialization.ssh</a>
  &#8226;   <a href="#google.auth.aws">google.auth.aws</a>
  &#8226;   <a href="#google.auth.compute_engine._mtls">google.auth.compute_engine._mtls</a>
  &#8226;   <a href="#google.auth.crypt.es">google.auth.crypt.es</a>
@@ -11102,6 +11771,8 @@ imported by:
  &#8226;   <a href="#soupsieve.css_match">soupsieve.css_match</a>
  &#8226;   <a href="#sqlite3.dbapi2">sqlite3.dbapi2</a>
  &#8226;   <a href="#urllib3.connection">urllib3.connection</a>
+ &#8226;   <a href="#workers.converter_worker">workers.converter_worker</a>
+ &#8226;   <a href="#workers.excel_to_json_worker">workers.excel_to_json_worker</a>
  &#8226;   <a href="#xlrd.xldate">xlrd.xldate</a>
  &#8226;   <a href="#xmlrpc.client">xmlrpc.client</a>
 
@@ -15757,6 +16428,7 @@ imported by:
  &#8226;   <a href="#asyncio.sslproto">asyncio.sslproto</a>
  &#8226;   <a href="#asyncio.timeouts">asyncio.timeouts</a>
  &#8226;   <a href="#attr._make">attr._make</a>
+ &#8226;   <a href="#chardet.enums">chardet.enums</a>
  &#8226;   <a href="#cryptography.hazmat.primitives.serialization.ssh">cryptography.hazmat.primitives.serialization.ssh</a>
  &#8226;   <a href="#cryptography.utils">cryptography.utils</a>
  &#8226;   <a href="#google.auth.compute_engine._mtls">google.auth.compute_engine._mtls</a>
@@ -15940,7 +16612,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#gui">gui</a>
+    <a href="#tabs.compress_tab">tabs.compress_tab</a>
+ &#8226;   <a href="#workers.compressor_worker">workers.compressor_worker</a>
 
   </div>
 
@@ -15962,8 +16635,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#gui">gui</a>
- &#8226;   <a href="#table_reader">table_reader</a>
+    <a href="#table_reader">table_reader</a>
+ &#8226;   <a href="#workers.download_worker">workers.download_worker</a>
 
   </div>
 
@@ -16132,6 +16805,9 @@ imported by:
  &#8226;   <a href="#attr._next_gen">attr._next_gen</a>
  &#8226;   <a href="#attr._version_info">attr._version_info</a>
  &#8226;   <a href="#bs4._deprecation">bs4._deprecation</a>
+ &#8226;   <a href="#chardet.models">chardet.models</a>
+ &#8226;   <a href="#chardet.pipeline.confusion">chardet.pipeline.confusion</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
  &#8226;   <a href="#charset_normalizer.cd">charset_normalizer.cd</a>
  &#8226;   <a href="#charset_normalizer.md">charset_normalizer.md</a>
  &#8226;   <a href="#charset_normalizer.utils">charset_normalizer.utils</a>
@@ -18179,17 +18855,15 @@ imported by:
   <a target="code" href="///C:/Users/user/source/repos/Imgdownloader/gui.py" type="text/plain"><tt>gui</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#asyncio">asyncio</a>
- &#8226;   <a href="#files_compressor">files_compressor</a>
- &#8226;   <a href="#files_downloader">files_downloader</a>
- &#8226;   <a href="#openpyxl">openpyxl</a>
- &#8226;   <a href="#os">os</a>
- &#8226;   <a href="#pandas">pandas</a>
- &#8226;   <a href="#qtpy.QtCore">qtpy.QtCore</a>
+    <a href="#os">os</a>
  &#8226;   <a href="#qtpy.QtGui">qtpy.QtGui</a>
  &#8226;   <a href="#qtpy.QtWidgets">qtpy.QtWidgets</a>
- &#8226;   <a href="#sys">sys</a>
- &#8226;   <a href="#table_reader">table_reader</a>
+ &#8226;   <a href="#tabs.compress_tab">tabs.compress_tab</a>
+ &#8226;   <a href="#tabs.converter_tab">tabs.converter_tab</a>
+ &#8226;   <a href="#tabs.download_tab">tabs.download_tab</a>
+ &#8226;   <a href="#tabs.excel_to_json_tab">tabs.excel_to_json_tab</a>
+ &#8226;   <a href="#tabs.split_tab">tabs.split_tab</a>
+ &#8226;   <a href="#utils">utils</a>
 
   </div>
   <div class="import">
@@ -18762,7 +19436,6 @@ imports:
  &#8226;   <a href="#importlib">importlib</a>
  &#8226;   <a href="#importlib._bootstrap">importlib._bootstrap</a>
  &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
- &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
  &#8226;   <a href="#sys">sys</a>
  &#8226;   <a href="#warnings">warnings</a>
 
@@ -18928,7 +19601,6 @@ imported by:
  &#8226;   <a href="#cffi.verifier">cffi.verifier</a>
  &#8226;   <a href="#ctypes.util">ctypes.util</a>
  &#8226;   <a href="#imp">imp</a>
- &#8226;   <a href="#importlib">importlib</a>
  &#8226;   <a href="#importlib.abc">importlib.abc</a>
  &#8226;   <a href="#inspect">inspect</a>
  &#8226;   <a href="#packaging.tags">packaging.tags</a>
@@ -19138,6 +19810,8 @@ imports:
   <div class="import">
 imported by:
     <a href="#certifi.core">certifi.core</a>
+ &#8226;   <a href="#chardet.models">chardet.models</a>
+ &#8226;   <a href="#chardet.pipeline.confusion">chardet.pipeline.confusion</a>
  &#8226;   <a href="#importlib.resources">importlib.resources</a>
  &#8226;   <a href="#importlib.resources._adapters">importlib.resources._adapters</a>
  &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
@@ -20095,6 +20769,7 @@ imported by:
  &#8226;   <a href="#urllib3.contrib.emscripten.fetch">urllib3.contrib.emscripten.fetch</a>
  &#8226;   <a href="#urllib3.contrib.emscripten.response">urllib3.contrib.emscripten.response</a>
  &#8226;   <a href="#urllib3.response">urllib3.response</a>
+ &#8226;   <a href="#workers.excel_to_json_worker">workers.excel_to_json_worker</a>
 
   </div>
 
@@ -21093,6 +21768,7 @@ imported by:
  &#8226;   <a href="#aiohttp.helpers">aiohttp.helpers</a>
  &#8226;   <a href="#aiohttp.web_response">aiohttp.web_response</a>
  &#8226;   <a href="#asyncio.windows_events">asyncio.windows_events</a>
+ &#8226;   <a href="#chardet.models">chardet.models</a>
  &#8226;   <a href="#cryptography.hazmat.primitives.asymmetric.rsa">cryptography.hazmat.primitives.asymmetric.rsa</a>
  &#8226;   <a href="#datetime">datetime</a>
  &#8226;   <a href="#dateutil.relativedelta">dateutil.relativedelta</a>
@@ -28986,8 +29662,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#gui">gui</a>
- &#8226;   <a href="#openpyxl._constants">openpyxl._constants</a>
+    <a href="#openpyxl._constants">openpyxl._constants</a>
  &#8226;   <a href="#openpyxl.cell">openpyxl.cell</a>
  &#8226;   <a href="#openpyxl.cell._writer">openpyxl.cell._writer</a>
  &#8226;   <a href="#openpyxl.chart">openpyxl.chart</a>
@@ -29011,6 +29686,7 @@ imported by:
  &#8226;   <a href="#openpyxl.xml">openpyxl.xml</a>
  &#8226;   <a href="#openpyxl.xml.functions">openpyxl.xml.functions</a>
  &#8226;   <a href="#pandas.io.excel._openpyxl">pandas.io.excel._openpyxl</a>
+ &#8226;   <a href="#workers.splitter_worker">workers.splitter_worker</a>
 
   </div>
 
@@ -34176,8 +34852,11 @@ imported by:
  &#8226;   <a href="#urllib3.contrib.emscripten.connection">urllib3.contrib.emscripten.connection</a>
  &#8226;   <a href="#urllib3.filepost">urllib3.filepost</a>
  &#8226;   <a href="#urllib3.util.ssl_">urllib3.util.ssl_</a>
+ &#8226;   <a href="#utils">utils</a>
  &#8226;   <a href="#uuid">uuid</a>
  &#8226;   <a href="#webbrowser">webbrowser</a>
+ &#8226;   <a href="#workers.excel_to_json_worker">workers.excel_to_json_worker</a>
+ &#8226;   <a href="#workers.splitter_worker">workers.splitter_worker</a>
  &#8226;   <a href="#xlrd">xlrd</a>
  &#8226;   <a href="#xml.dom.domreg">xml.dom.domreg</a>
  &#8226;   <a href="#xml.sax">xml.sax</a>
@@ -34837,8 +35516,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#gui">gui</a>
- &#8226;   <a href="#pandas">pandas</a>
+    <a href="#pandas">pandas</a>
  &#8226;   <a href="#pandas._config">pandas._config</a>
  &#8226;   <a href="#pandas._libs">pandas._libs</a>
  &#8226;   <a href="#pandas._libs.index">pandas._libs.index</a>
@@ -34970,6 +35648,10 @@ imported by:
  &#8226;   <a href="#pandas.util">pandas.util</a>
  &#8226;   <a href="#pandas.util._exceptions">pandas.util._exceptions</a>
  &#8226;   <a href="#table_reader">table_reader</a>
+ &#8226;   <a href="#tabs.excel_to_json_tab">tabs.excel_to_json_tab</a>
+ &#8226;   <a href="#workers.converter_worker">workers.converter_worker</a>
+ &#8226;   <a href="#workers.excel_to_json_worker">workers.excel_to_json_worker</a>
+ &#8226;   <a href="#workers.splitter_worker">workers.splitter_worker</a>
 
   </div>
 
@@ -47279,6 +47961,8 @@ imported by:
  &#8226;   <a href="#setuptools.discovery">setuptools.discovery</a>
  &#8226;   <a href="#setuptools.dist">setuptools.dist</a>
  &#8226;   <a href="#table_reader">table_reader</a>
+ &#8226;   <a href="#workers.converter_worker">workers.converter_worker</a>
+ &#8226;   <a href="#workers.excel_to_json_worker">workers.excel_to_json_worker</a>
  &#8226;   <a href="#zipfile">zipfile</a>
  &#8226;   <a href="#zipp">zipp</a>
 
@@ -50133,9 +50817,17 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#gui">gui</a>
- &#8226;   <a href="#qtpy.QtGui">qtpy.QtGui</a>
+    <a href="#qtpy.QtGui">qtpy.QtGui</a>
  &#8226;   <a href="#qtpy._utils">qtpy._utils</a>
+ &#8226;   <a href="#tabs.compress_tab">tabs.compress_tab</a>
+ &#8226;   <a href="#tabs.download_tab">tabs.download_tab</a>
+ &#8226;   <a href="#tabs.excel_to_json_tab">tabs.excel_to_json_tab</a>
+ &#8226;   <a href="#utils">utils</a>
+ &#8226;   <a href="#workers.compressor_worker">workers.compressor_worker</a>
+ &#8226;   <a href="#workers.converter_worker">workers.converter_worker</a>
+ &#8226;   <a href="#workers.download_worker">workers.download_worker</a>
+ &#8226;   <a href="#workers.excel_to_json_worker">workers.excel_to_json_worker</a>
+ &#8226;   <a href="#workers.splitter_worker">workers.splitter_worker</a>
 
   </div>
 
@@ -50180,6 +50872,9 @@ imported by:
     <a href="#gui">gui</a>
  &#8226;   <a href="#qtpy.QtWidgets">qtpy.QtWidgets</a>
  &#8226;   <a href="#qtpy._utils">qtpy._utils</a>
+ &#8226;   <a href="#tabs.download_tab">tabs.download_tab</a>
+ &#8226;   <a href="#tabs.excel_to_json_tab">tabs.excel_to_json_tab</a>
+ &#8226;   <a href="#utils">utils</a>
 
   </div>
 
@@ -50208,6 +50903,12 @@ imported by:
  &#8226;   <a href="#pandas.io.clipboard">pandas.io.clipboard</a>
  &#8226;   <a href="#qtpy._utils">qtpy._utils</a>
  &#8226;   <a href="#run.py">run.py</a>
+ &#8226;   <a href="#tabs.compress_tab">tabs.compress_tab</a>
+ &#8226;   <a href="#tabs.converter_tab">tabs.converter_tab</a>
+ &#8226;   <a href="#tabs.download_tab">tabs.download_tab</a>
+ &#8226;   <a href="#tabs.excel_to_json_tab">tabs.excel_to_json_tab</a>
+ &#8226;   <a href="#tabs.split_tab">tabs.split_tab</a>
+ &#8226;   <a href="#utils">utils</a>
 
   </div>
 
@@ -50428,6 +51129,7 @@ imported by:
  &#8226;   <a href="#cffi.api">cffi.api</a>
  &#8226;   <a href="#cffi.cparser">cffi.cparser</a>
  &#8226;   <a href="#cgi">cgi</a>
+ &#8226;   <a href="#chardet.pipeline.markup">chardet.pipeline.markup</a>
  &#8226;   <a href="#charset_normalizer.constant">charset_normalizer.constant</a>
  &#8226;   <a href="#charset_normalizer.models">charset_normalizer.models</a>
  &#8226;   <a href="#charset_normalizer.utils">charset_normalizer.utils</a>
@@ -56402,6 +57104,8 @@ imported by:
     <a href="#aiohttp._websocket.helpers">aiohttp._websocket.helpers</a>
  &#8226;   <a href="#asyncio.windows_events">asyncio.windows_events</a>
  &#8226;   <a href="#base64">base64</a>
+ &#8226;   <a href="#chardet.models">chardet.models</a>
+ &#8226;   <a href="#chardet.pipeline.confusion">chardet.pipeline.confusion</a>
  &#8226;   <a href="#ctypes">ctypes</a>
  &#8226;   <a href="#ctypes.util">ctypes.util</a>
  &#8226;   <a href="#dateutil.tz.tz">dateutil.tz.tz</a>
@@ -56656,7 +57360,6 @@ imported by:
  &#8226;   <a href="#google.auth.transport._custom_tls_signer">google.auth.transport._custom_tls_signer</a>
  &#8226;   <a href="#google.oauth2.challenges">google.oauth2.challenges</a>
  &#8226;   <a href="#google.oauth2.reauth">google.oauth2.reauth</a>
- &#8226;   <a href="#gui">gui</a>
  &#8226;   <a href="#gzip">gzip</a>
  &#8226;   <a href="#http.client">http.client</a>
  &#8226;   <a href="#http.server">http.server</a>
@@ -56892,6 +57595,7 @@ imported by:
  &#8226;   <a href="#urllib3.response">urllib3.response</a>
  &#8226;   <a href="#urllib3.util.request">urllib3.util.request</a>
  &#8226;   <a href="#urllib3.util.ssl_">urllib3.util.ssl_</a>
+ &#8226;   <a href="#utils">utils</a>
  &#8226;   <a href="#uuid">uuid</a>
  &#8226;   <a href="#warnings">warnings</a>
  &#8226;   <a href="#weakref">weakref</a>
@@ -56979,7 +57683,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#gui">gui</a>
+    <a href="#tabs.download_tab">tabs.download_tab</a>
 
   </div>
 
@@ -56991,6 +57695,124 @@ imported by:
 <span class="moduletype">MissingModule</span>  <div class="import">
 imported by:
     <a href="#pandas.io.pytables">pandas.io.pytables</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tabs"></a>
+  <a target="code" href="///C:/Users/user/source/repos/Imgdownloader/tabs/__init__.py" type="text/plain"><tt>tabs</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imported by:
+    <a href="#tabs.compress_tab">tabs.compress_tab</a>
+ &#8226;   <a href="#tabs.converter_tab">tabs.converter_tab</a>
+ &#8226;   <a href="#tabs.download_tab">tabs.download_tab</a>
+ &#8226;   <a href="#tabs.excel_to_json_tab">tabs.excel_to_json_tab</a>
+ &#8226;   <a href="#tabs.split_tab">tabs.split_tab</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tabs.compress_tab"></a>
+  <a target="code" href="///C:/Users/user/source/repos/Imgdownloader/tabs/compress_tab.py" type="text/plain"><tt>tabs.compress_tab</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#files_compressor">files_compressor</a>
+ &#8226;   <a href="#qtpy.QtCore">qtpy.QtCore</a>
+ &#8226;   <a href="#qtpy.QtWidgets">qtpy.QtWidgets</a>
+ &#8226;   <a href="#tabs">tabs</a>
+ &#8226;   <a href="#utils">utils</a>
+ &#8226;   <a href="#workers.compressor_worker">workers.compressor_worker</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#gui">gui</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tabs.converter_tab"></a>
+  <a target="code" href="///C:/Users/user/source/repos/Imgdownloader/tabs/converter_tab.py" type="text/plain"><tt>tabs.converter_tab</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#qtpy.QtWidgets">qtpy.QtWidgets</a>
+ &#8226;   <a href="#tabs">tabs</a>
+ &#8226;   <a href="#utils">utils</a>
+ &#8226;   <a href="#workers.converter_worker">workers.converter_worker</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#gui">gui</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tabs.download_tab"></a>
+  <a target="code" href="///C:/Users/user/source/repos/Imgdownloader/tabs/download_tab.py" type="text/plain"><tt>tabs.download_tab</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#qtpy.QtCore">qtpy.QtCore</a>
+ &#8226;   <a href="#qtpy.QtGui">qtpy.QtGui</a>
+ &#8226;   <a href="#qtpy.QtWidgets">qtpy.QtWidgets</a>
+ &#8226;   <a href="#table_reader">table_reader</a>
+ &#8226;   <a href="#tabs">tabs</a>
+ &#8226;   <a href="#utils">utils</a>
+ &#8226;   <a href="#workers.download_worker">workers.download_worker</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#gui">gui</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tabs.excel_to_json_tab"></a>
+  <a target="code" href="///C:/Users/user/source/repos/Imgdownloader/tabs/excel_to_json_tab.py" type="text/plain"><tt>tabs.excel_to_json_tab</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#pandas">pandas</a>
+ &#8226;   <a href="#qtpy.QtCore">qtpy.QtCore</a>
+ &#8226;   <a href="#qtpy.QtGui">qtpy.QtGui</a>
+ &#8226;   <a href="#qtpy.QtWidgets">qtpy.QtWidgets</a>
+ &#8226;   <a href="#tabs">tabs</a>
+ &#8226;   <a href="#utils">utils</a>
+ &#8226;   <a href="#workers.excel_to_json_worker">workers.excel_to_json_worker</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#gui">gui</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="tabs.split_tab"></a>
+  <a target="code" href="///C:/Users/user/source/repos/Imgdownloader/tabs/split_tab.py" type="text/plain"><tt>tabs.split_tab</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#qtpy.QtWidgets">qtpy.QtWidgets</a>
+ &#8226;   <a href="#tabs">tabs</a>
+ &#8226;   <a href="#utils">utils</a>
+ &#8226;   <a href="#workers.splitter_worker">workers.splitter_worker</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#gui">gui</a>
 
   </div>
 
@@ -57546,6 +58368,8 @@ imported by:
  &#8226;   <a href="#cffi.api">cffi.api</a>
  &#8226;   <a href="#cffi.model">cffi.model</a>
  &#8226;   <a href="#cffi.vengine_gen">cffi.vengine_gen</a>
+ &#8226;   <a href="#chardet.detector">chardet.detector</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
  &#8226;   <a href="#concurrent.futures._base">concurrent.futures._base</a>
  &#8226;   <a href="#concurrent.futures.thread">concurrent.futures.thread</a>
  &#8226;   <a href="#contextlib">contextlib</a>
@@ -57742,6 +58566,9 @@ imported by:
  &#8226;   <a href="#bs4.exceptions">bs4.exceptions</a>
  &#8226;   <a href="#bs4.filter">bs4.filter</a>
  &#8226;   <a href="#bs4.formatter">bs4.formatter</a>
+ &#8226;   <a href="#chardet.detector">chardet.detector</a>
+ &#8226;   <a href="#chardet.pipeline">chardet.pipeline</a>
+ &#8226;   <a href="#chardet.registry">chardet.registry</a>
  &#8226;   <a href="#charset_normalizer.api">charset_normalizer.api</a>
  &#8226;   <a href="#charset_normalizer.cd">charset_normalizer.cd</a>
  &#8226;   <a href="#charset_normalizer.legacy">charset_normalizer.legacy</a>
@@ -58266,6 +59093,8 @@ imported by:
   <tt>unicodedata</tt> <span class="moduletype"><tt>C:\Users\user\AppData\Local\Programs\Python\Python311\DLLs\unicodedata.pyd</tt></span>  <div class="import">
 imported by:
     <a href="#attr._make">attr._make</a>
+ &#8226;   <a href="#chardet.equivalences">chardet.equivalences</a>
+ &#8226;   <a href="#chardet.pipeline.utf1632">chardet.pipeline.utf1632</a>
  &#8226;   <a href="#charset_normalizer.utils">charset_normalizer.utils</a>
  &#8226;   <a href="#encodings.idna">encodings.idna</a>
  &#8226;   <a href="#idna.core">idna.core</a>
@@ -59928,6 +60757,31 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="utils"></a>
+  <a target="code" href="///C:/Users/user/source/repos/Imgdownloader/utils.py" type="text/plain"><tt>utils</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#os">os</a>
+ &#8226;   <a href="#qtpy.QtCore">qtpy.QtCore</a>
+ &#8226;   <a href="#qtpy.QtGui">qtpy.QtGui</a>
+ &#8226;   <a href="#qtpy.QtWidgets">qtpy.QtWidgets</a>
+ &#8226;   <a href="#sys">sys</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#gui">gui</a>
+ &#8226;   <a href="#tabs.compress_tab">tabs.compress_tab</a>
+ &#8226;   <a href="#tabs.converter_tab">tabs.converter_tab</a>
+ &#8226;   <a href="#tabs.download_tab">tabs.download_tab</a>
+ &#8226;   <a href="#tabs.excel_to_json_tab">tabs.excel_to_json_tab</a>
+ &#8226;   <a href="#tabs.split_tab">tabs.split_tab</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="uuid"></a>
   <a target="code" href="///C:/Users/user/AppData/Local/Programs/Python/Python311/Lib/uuid.py" type="text/plain"><tt>uuid</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -60044,6 +60898,11 @@ imported by:
  &#8226;   <a href="#cffi.model">cffi.model</a>
  &#8226;   <a href="#cffi.vengine_cpy">cffi.vengine_cpy</a>
  &#8226;   <a href="#cgi">cgi</a>
+ &#8226;   <a href="#chardet._utils">chardet._utils</a>
+ &#8226;   <a href="#chardet.detector">chardet.detector</a>
+ &#8226;   <a href="#chardet.models">chardet.models</a>
+ &#8226;   <a href="#chardet.pipeline.confusion">chardet.pipeline.confusion</a>
+ &#8226;   <a href="#chardet.pipeline.orchestrator">chardet.pipeline.orchestrator</a>
  &#8226;   <a href="#charset_normalizer.legacy">charset_normalizer.legacy</a>
  &#8226;   <a href="#codeop">codeop</a>
  &#8226;   <a href="#configparser">configparser</a>
@@ -60506,6 +61365,120 @@ imported by:
  &#8226;   <a href="#setuptools.msvc">setuptools.msvc</a>
  &#8226;   <a href="#six.moves.winreg">six.moves.winreg</a>
  &#8226;   <a href="#urllib.request">urllib.request</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="workers"></a>
+  <a target="code" href="///C:/Users/user/source/repos/Imgdownloader/workers/__init__.py" type="text/plain"><tt>workers</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imported by:
+    <a href="#workers.compressor_worker">workers.compressor_worker</a>
+ &#8226;   <a href="#workers.converter_worker">workers.converter_worker</a>
+ &#8226;   <a href="#workers.download_worker">workers.download_worker</a>
+ &#8226;   <a href="#workers.excel_to_json_worker">workers.excel_to_json_worker</a>
+ &#8226;   <a href="#workers.splitter_worker">workers.splitter_worker</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="workers.compressor_worker"></a>
+  <a target="code" href="///C:/Users/user/source/repos/Imgdownloader/workers/compressor_worker.py" type="text/plain"><tt>workers.compressor_worker</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#files_compressor">files_compressor</a>
+ &#8226;   <a href="#qtpy.QtCore">qtpy.QtCore</a>
+ &#8226;   <a href="#workers">workers</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tabs.compress_tab">tabs.compress_tab</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="workers.converter_worker"></a>
+  <a target="code" href="///C:/Users/user/source/repos/Imgdownloader/workers/converter_worker.py" type="text/plain"><tt>workers.converter_worker</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#datetime">datetime</a>
+ &#8226;   <a href="#pandas">pandas</a>
+ &#8226;   <a href="#pathlib">pathlib</a>
+ &#8226;   <a href="#qtpy.QtCore">qtpy.QtCore</a>
+ &#8226;   <a href="#workers">workers</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tabs.converter_tab">tabs.converter_tab</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="workers.download_worker"></a>
+  <a target="code" href="///C:/Users/user/source/repos/Imgdownloader/workers/download_worker.py" type="text/plain"><tt>workers.download_worker</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#asyncio">asyncio</a>
+ &#8226;   <a href="#files_downloader">files_downloader</a>
+ &#8226;   <a href="#qtpy.QtCore">qtpy.QtCore</a>
+ &#8226;   <a href="#workers">workers</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tabs.download_tab">tabs.download_tab</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="workers.excel_to_json_worker"></a>
+  <a target="code" href="///C:/Users/user/source/repos/Imgdownloader/workers/excel_to_json_worker.py" type="text/plain"><tt>workers.excel_to_json_worker</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#datetime">datetime</a>
+ &#8226;   <a href="#json">json</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#pandas">pandas</a>
+ &#8226;   <a href="#pathlib">pathlib</a>
+ &#8226;   <a href="#qtpy.QtCore">qtpy.QtCore</a>
+ &#8226;   <a href="#workers">workers</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tabs.excel_to_json_tab">tabs.excel_to_json_tab</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="workers.splitter_worker"></a>
+  <a target="code" href="///C:/Users/user/source/repos/Imgdownloader/workers/splitter_worker.py" type="text/plain"><tt>workers.splitter_worker</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#openpyxl">openpyxl</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#pandas">pandas</a>
+ &#8226;   <a href="#qtpy.QtCore">qtpy.QtCore</a>
+ &#8226;   <a href="#workers">workers</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#tabs.split_tab">tabs.split_tab</a>
 
   </div>
 
@@ -61752,6 +62725,7 @@ imported by:
   <tt>zlib</tt> <span class="moduletype"><i>(builtin module)</i></span>  <div class="import">
 imported by:
     <a href="#aiohttp.compression_utils">aiohttp.compression_utils</a>
+ &#8226;   <a href="#chardet.models">chardet.models</a>
  &#8226;   <a href="#encodings.zlib_codec">encodings.zlib_codec</a>
  &#8226;   <a href="#gzip">gzip</a>
  &#8226;   <a href="#shutil">shutil</a>

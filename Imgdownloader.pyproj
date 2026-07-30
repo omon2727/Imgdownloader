@@ -26,10 +26,27 @@
     <Compile Include="gui.py" />
     <Compile Include="run.py" />
     <Compile Include="table_reader.py" />
+    <Compile Include="tabs\compress_tab.py" />
+    <Compile Include="tabs\converter_tab.py" />
+    <Compile Include="tabs\download_tab.py" />
+    <Compile Include="tabs\split_tab.py" />
+    <Compile Include="tabs\__init__.py" />
+    <Compile Include="utils.py" />
+    <Compile Include="workers\compressor_worker.py" />
+    <Compile Include="workers\converter_worker.py" />
+    <Compile Include="workers\download_worker.py" />
+    <Compile Include="workers\excel_to_json_worker.py" />
+    <Compile Include="workers\splitter_worker.py" />
+    <Compile Include="workers\__init__.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
+    <Content Include="tabs\excel_to_json_tab.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="workers\" />
+    <Folder Include="tabs\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
