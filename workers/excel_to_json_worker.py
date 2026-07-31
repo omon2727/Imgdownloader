@@ -7,6 +7,16 @@ import pandas as pd
 from qtpy.QtCore import QThread, Signal
 
 
+def clean(value):
+    """Очистка значения от nan / None"""
+    if value is None:
+        return ""
+    s = str(value).strip()
+    if s.lower() == "nan":
+        return ""
+    return s
+
+
 class ExcelToJsonWorker(QThread):
     progress = Signal(int)
     log = Signal(str)
@@ -14,6 +24,19 @@ class ExcelToJsonWorker(QThread):
     result = Signal(int)
 
     def __init__(self, excel_path: str, output_dir: str, column_map: dict, catalog_name: str = "jenya123"):
+        """
+        column_map:
+        {
+            "brand": int | None,
+            "article_display": int | None,
+            "article_name": int | None,
+            "group": int | None,
+            "param_cols": [int, ...],          # список столбцов-параметров
+            "manufacture": int | None,         # автопроизводитель
+            "model": int | None,               # модель авто
+            "type": int | None                 # тип авто
+        }
+        """
         super().__init__()
         self.excel_path = excel_path
         self.output_dir = output_dir
@@ -27,41 +50,38 @@ class ExcelToJsonWorker(QThread):
     def run(self):
         try:
             self.log.emit(f"Читаем файл: {self.excel_path}")
-            # header=None + пропускаем первую строку (шапку)
             df = pd.read_excel(self.excel_path, header=None)
-            df = df.iloc[1:]  # начинаем со 2-й строки
+
+            # Первая строка — шапка (для названий параметров)
+            header_row = df.iloc[0]
+            # Данные начинаются со 2-й строки
+            data_df = df.iloc[1:]
 
             brand_col = self.column_map.get("brand")
             article_display_col = self.column_map.get("article_display")
             article_name_col = self.column_map.get("article_name")
             group_col = self.column_map.get("group")
+            param_cols = self.column_map.get("param_cols") or []
+            manufacture_col = self.column_map.get("manufacture")
+            model_col = self.column_map.get("model")
+            type_col = self.column_map.get("type")
 
             db_parts = []
-            total = len(df)
+            total = len(data_df)
 
-            for i, (_, row) in enumerate(df.iterrows()):
+            for i, (_, row) in enumerate(data_df.iterrows()):
                 if self.is_cancelled:
                     self.log.emit("Операция отменена.")
                     break
 
-                brand = str(row.iloc[brand_col]).strip() if brand_col is not None else ""
-                article_display = str(row.iloc[article_display_col]).strip() if article_display_col is not None else ""
-                article_name = str(row.iloc[article_name_col]).strip() if article_name_col is not None else ""
-                group = str(row.iloc[group_col]).strip() if group_col is not None else ""
+                brand = clean(row.iloc[brand_col]) if brand_col is not None else ""
+                article_display = clean(row.iloc[article_display_col]) if article_display_col is not None else ""
+                article_name = clean(row.iloc[article_name_col]) if article_name_col is not None else ""
+                group = clean(row.iloc[group_col]) if group_col is not None else ""
 
                 # пропускаем полностью пустые строки
                 if not any([brand, article_display, article_name, group]):
                     continue
-
-                # защита от nan
-                if brand.lower() == "nan":
-                    brand = ""
-                if article_display.lower() == "nan":
-                    article_display = ""
-                if article_name.lower() == "nan":
-                    article_name = ""
-                if group.lower() == "nan":
-                    group = ""
 
                 db_part = {
                     "catalog": self.catalog_name,
@@ -78,6 +98,41 @@ class ExcelToJsonWorker(QThread):
                         "display": article_display
                     }
                 }
+
+                # ===== params =====
+                if param_cols:
+                    params = []
+                    for col_idx in param_cols:
+                        param_name = clean(header_row.iloc[col_idx])
+                        param_value = clean(row.iloc[col_idx])
+                        if param_name or param_value:
+                            params.append({
+                                "name": param_name,
+                                "value": param_value
+                            })
+                    if params:
+                        db_part["params"] = params
+
+                # ===== vehicles =====
+                if any(x is not None for x in [manufacture_col, model_col, type_col]):
+                    manufacture = clean(row.iloc[manufacture_col]) if manufacture_col is not None else ""
+                    model = clean(row.iloc[model_col]) if model_col is not None else ""
+                    vehicle_type = clean(row.iloc[type_col]) if type_col is not None else ""
+
+                    db_part["vehicles"] = [
+                        {
+                            "manufacture": {
+                                "name": manufacture
+                            },
+                            "model": {
+                                "name": model
+                            },
+                            "type": {
+                                "name": vehicle_type
+                            }
+                        }
+                    ]
+
                 db_parts.append(db_part)
 
                 if i % 50 == 0:
@@ -89,7 +144,6 @@ class ExcelToJsonWorker(QThread):
             os.makedirs(self.output_dir, exist_ok=True)
             timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-            # Только один файл — массив JSON
             db_path = Path(self.output_dir) / f"parts_for_db_{timestamp}.json"
             with open(db_path, "w", encoding="utf-8") as f:
                 json.dump(db_parts, f, ensure_ascii=False, indent=2)

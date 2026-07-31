@@ -19,6 +19,10 @@ class PandasModel(QAbstractTableModel):
         self.article_display_col = None
         self.article_name_col = None
         self.group_col = None
+        self.param_cols = []          # список столбцов-параметров
+        self.manufacture_col = None
+        self.model_col = None
+        self.type_col = None
 
     def rowCount(self, parent=None):
         return self._df.shape[0]
@@ -31,14 +35,23 @@ class PandasModel(QAbstractTableModel):
             return str(self._df.iloc[index.row(), index.column()])
 
         if role == Qt.BackgroundRole:
-            if index.column() == self.brand_col:
+            col = index.column()
+            if col == self.brand_col:
                 return QColor("#fff3cd")
-            if index.column() == self.article_display_col:
+            if col == self.article_display_col:
                 return QColor("#cce5ff")
-            if index.column() == self.article_name_col:
+            if col == self.article_name_col:
                 return QColor("#d4edda")
-            if index.column() == self.group_col:
+            if col == self.group_col:
                 return QColor("#f8d7da")
+            if col in self.param_cols:
+                return QColor("#e2d5f1")      # фиолетовый
+            if col == self.manufacture_col:
+                return QColor("#d1ecf1")      # бирюзовый
+            if col == self.model_col:
+                return QColor("#d4edda")
+            if col == self.type_col:
+                return QColor("#fff3cd")
         return None
 
     def headerData(self, section, orientation, role):
@@ -52,6 +65,14 @@ class PandasModel(QAbstractTableModel):
                 return f"{name} [ИМЯ АРТИКУЛА]"
             if section == self.group_col:
                 return f"{name} [ГРУППА]"
+            if section in self.param_cols:
+                return f"{name} [ПАРАМЕТР]"
+            if section == self.manufacture_col:
+                return f"{name} [АВТОПРОИЗВОДИТЕЛЬ]"
+            if section == self.model_col:
+                return f"{name} [МОДЕЛЬ АВТО]"
+            if section == self.type_col:
+                return f"{name} [ТИП АВТО]"
             return name
         return None
 
@@ -71,7 +92,6 @@ class ExcelToJsonTab(QWidget):
         layout.addLayout(create_header("Excel → JSON для базы данных"))
         layout.addSpacing(15)
 
-        # Выбор файла и папки
         top = QHBoxLayout()
         self.file_btn = QPushButton("Выбрать Excel файл")
         self.file_btn.setFixedWidth(200)
@@ -89,7 +109,6 @@ class ExcelToJsonTab(QWidget):
         layout.addLayout(top)
         layout.addSpacing(15)
 
-        # Поле catalog
         catalog_layout = QHBoxLayout()
         catalog_label = QLabel("Название каталога (catalog):")
         self.catalog_input = QLineEdit()
@@ -105,18 +124,15 @@ class ExcelToJsonTab(QWidget):
         layout.addLayout(catalog_layout)
         layout.addSpacing(15)
 
-        # Подсказка
         hint = QLabel("Правой кнопкой мыши по заголовку столбца назначьте роли")
         hint.setStyleSheet("color: gray;")
         hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(hint)
         layout.addSpacing(10)
 
-        # Таблица
         self.table = QTableView()
         layout.addWidget(self.table)
 
-        # Кнопка
         start_layout = QHBoxLayout()
         self.start_btn = QPushButton("Начать преобразование")
         self.start_btn.setFixedWidth(260)
@@ -145,7 +161,6 @@ class ExcelToJsonTab(QWidget):
         try:
             self.df = pd.read_excel(path, header=None)
             self.excel_path = path
-            # показываем первые 15 строк (включая шапку для удобства)
             self.model = PandasModel(self.df.head(15))
             self.table.setModel(self.model)
 
@@ -174,10 +189,17 @@ class ExcelToJsonTab(QWidget):
             return
 
         menu = QMenu(self)
-        brand_action = menu.addAction("Использовать как Бренд")
-        article_display_action = menu.addAction("Использовать как Артикул на сайте")
-        article_name_action = menu.addAction("Использовать как Имя артикула")
-        group_action = menu.addAction("Использовать как Название группы")
+        brand_action = menu.addAction("Бренд")
+        article_display_action = menu.addAction("Артикул на сайте")
+        article_name_action = menu.addAction("Имя артикула")
+        group_action = menu.addAction("Название группы")
+        menu.addSeparator()
+        param_action = menu.addAction("Параметр")
+        menu.addSeparator()
+        manufacture_action = menu.addAction("Автопроизводитель")
+        model_action = menu.addAction("Модель авто")
+        type_action = menu.addAction("Тип авто")
+        menu.addSeparator()
         clear_action = menu.addAction("Сбросить назначение")
 
         action = menu.exec(header.mapToGlobal(pos))
@@ -190,6 +212,15 @@ class ExcelToJsonTab(QWidget):
             self.model.article_name_col = col
         elif action is group_action:
             self.model.group_col = col
+        elif action is param_action:
+            if col not in self.model.param_cols:
+                self.model.param_cols.append(col)
+        elif action is manufacture_action:
+            self.model.manufacture_col = col
+        elif action is model_action:
+            self.model.model_col = col
+        elif action is type_action:
+            self.model.type_col = col
         elif action is clear_action:
             if self.model.brand_col == col:
                 self.model.brand_col = None
@@ -199,6 +230,14 @@ class ExcelToJsonTab(QWidget):
                 self.model.article_name_col = None
             if self.model.group_col == col:
                 self.model.group_col = None
+            if col in self.model.param_cols:
+                self.model.param_cols.remove(col)
+            if self.model.manufacture_col == col:
+                self.model.manufacture_col = None
+            if self.model.model_col == col:
+                self.model.model_col = None
+            if self.model.type_col == col:
+                self.model.type_col = None
 
         self.table.viewport().update()
         self.table.horizontalHeader().viewport().update()
@@ -219,11 +258,14 @@ class ExcelToJsonTab(QWidget):
             QMessageBox.warning(self, "Ошибка", "Файл не загружен")
             return
 
+        # хотя бы одна основная роль
         if all(x is None for x in [
             self.model.brand_col,
             self.model.article_display_col,
             self.model.article_name_col,
             self.model.group_col
+        ]) and not self.model.param_cols and all(x is None for x in [
+            self.model.manufacture_col, self.model.model_col, self.model.type_col
         ]):
             QMessageBox.warning(self, "Ошибка", "Назначьте хотя бы один столбец")
             return
@@ -234,7 +276,11 @@ class ExcelToJsonTab(QWidget):
             "brand": self.model.brand_col,
             "article_display": self.model.article_display_col,
             "article_name": self.model.article_name_col,
-            "group": self.model.group_col
+            "group": self.model.group_col,
+            "param_cols": list(self.model.param_cols),
+            "manufacture": self.model.manufacture_col,
+            "model": self.model.model_col,
+            "type": self.model.type_col
         }
 
         self.log.append("\nЗапуск преобразования...\n")
