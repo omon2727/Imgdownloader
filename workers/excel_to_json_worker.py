@@ -31,10 +31,11 @@ class ExcelToJsonWorker(QThread):
             "article_display": int | None,
             "article_name": int | None,
             "group": int | None,
-            "param_cols": [int, ...],          # список столбцов-параметров
-            "manufacture": int | None,         # автопроизводитель
-            "model": int | None,               # модель авто
-            "type": int | None                 # тип авто
+            "param_cols": [int, ...],
+            "manufacture": int | None,
+            "model": int | None,
+            "type": int | None,
+            "engine": int | None
         }
         """
         super().__init__()
@@ -52,9 +53,7 @@ class ExcelToJsonWorker(QThread):
             self.log.emit(f"Читаем файл: {self.excel_path}")
             df = pd.read_excel(self.excel_path, header=None)
 
-            # Первая строка — шапка (для названий параметров)
             header_row = df.iloc[0]
-            # Данные начинаются со 2-й строки
             data_df = df.iloc[1:]
 
             brand_col = self.column_map.get("brand")
@@ -65,6 +64,7 @@ class ExcelToJsonWorker(QThread):
             manufacture_col = self.column_map.get("manufacture")
             model_col = self.column_map.get("model")
             type_col = self.column_map.get("type")
+            engine_col = self.column_map.get("engine")
 
             db_parts = []
             total = len(data_df)
@@ -79,7 +79,6 @@ class ExcelToJsonWorker(QThread):
                 article_name = clean(row.iloc[article_name_col]) if article_name_col is not None else ""
                 group = clean(row.iloc[group_col]) if group_col is not None else ""
 
-                # пропускаем полностью пустые строки
                 if not any([brand, article_display, article_name, group]):
                     continue
 
@@ -88,24 +87,27 @@ class ExcelToJsonWorker(QThread):
                     "supplier": {
                         "name": brand
                     },
-                    "products": [
-                        {
-                            "name": group
-                        }
-                    ],
                     "article": {
                         "name": article_name,
                         "display": article_display
                     }
                 }
 
+                if group_col is not None:
+                    db_part["products"] = [
+                        {
+                            "name": group
+                        }
+                    ]
+
                 # ===== params =====
+                # добавляем только если значение ячейки НЕ пустое
                 if param_cols:
                     params = []
                     for col_idx in param_cols:
                         param_name = clean(header_row.iloc[col_idx])
                         param_value = clean(row.iloc[col_idx])
-                        if param_name or param_value:
+                        if param_value:  # только при непустом значении
                             params.append({
                                 "name": param_name,
                                 "value": param_value
@@ -114,10 +116,11 @@ class ExcelToJsonWorker(QThread):
                         db_part["params"] = params
 
                 # ===== vehicles =====
-                if any(x is not None for x in [manufacture_col, model_col, type_col]):
+                if any(x is not None for x in [manufacture_col, model_col, type_col, engine_col]):
                     manufacture = clean(row.iloc[manufacture_col]) if manufacture_col is not None else ""
                     model = clean(row.iloc[model_col]) if model_col is not None else ""
                     vehicle_type = clean(row.iloc[type_col]) if type_col is not None else ""
+                    engine = clean(row.iloc[engine_col]) if engine_col is not None else ""
 
                     db_part["vehicles"] = [
                         {
@@ -129,6 +132,9 @@ class ExcelToJsonWorker(QThread):
                             },
                             "type": {
                                 "name": vehicle_type
+                            },
+                            "engine": {
+                                "name": engine
                             }
                         }
                     ]
