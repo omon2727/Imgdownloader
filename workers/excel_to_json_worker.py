@@ -150,7 +150,13 @@ class ExcelToJsonWorker(QThread):
             os.makedirs(self.output_dir, exist_ok=True)
             timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-            db_path = Path(self.output_dir) / f"parts_for_db_{timestamp}.json"
+            # безопасное имя из catalog
+            safe_catalog = "".join(
+                c if c.isalnum() or c in ("-", "_") else "_"
+                for c in self.catalog_name.strip()
+            ).strip("_") or "catalog"
+
+            db_path = Path(self.output_dir) / f"{safe_catalog}_{timestamp}.json"
             with open(db_path, "w", encoding="utf-8") as f:
                 json.dump(db_parts, f, ensure_ascii=False, indent=2)
 

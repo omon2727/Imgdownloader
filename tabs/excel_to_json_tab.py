@@ -136,6 +136,9 @@ class ExcelToJsonTab(QWidget):
         layout.addSpacing(10)
 
         self.table = QTableView()
+        header = self.table.horizontalHeader()
+        header.setContextMenuPolicy(Qt.CustomContextMenu)
+        header.customContextMenuRequested.connect(self.open_column_menu)
         layout.addWidget(self.table)
 
         start_layout = QHBoxLayout()
@@ -170,8 +173,7 @@ class ExcelToJsonTab(QWidget):
             self.table.setModel(self.model)
 
             header = self.table.horizontalHeader()
-            header.setContextMenuPolicy(Qt.CustomContextMenu)
-            header.customContextMenuRequested.connect(self.open_column_menu)
+            
 
             self.log.append(f"Загружен файл: {path}")
             self.log.append(f"Строк: {len(self.df)}, столбцов: {self.df.shape[1]}")

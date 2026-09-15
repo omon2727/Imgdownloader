@@ -116,8 +116,11 @@ class DownloadTab(QWidget):
         layout.addWidget(hint)
         layout.addSpacing(5)
 
-        # ===== Таблица =====
+                # ===== Таблица =====
         self.table = QTableView()
+        header = self.table.horizontalHeader()
+        header.setContextMenuPolicy(Qt.CustomContextMenu)
+        header.customContextMenuRequested.connect(self.download_open_menu)
         layout.addWidget(self.table, stretch=1)
 
         # ===== Кнопка старта =====
@@ -157,16 +160,19 @@ class DownloadTab(QWidget):
             QMessageBox.critical(self, "Ошибка", str(e))
             return
 
+        # сброс назначений при новом файле
+        self.reader.urls_column_index = None
+        self.reader.filenames_column_index = None
+        self.reader.brands_column_index = None
+
         preview = self.reader.data_frame.head(15)
         self.download_model = PandasModel(preview)
         self.table.setModel(self.download_model)
 
-        header = self.table.horizontalHeader()
-        header.setContextMenuPolicy(Qt.CustomContextMenu)
-        header.customContextMenuRequested.connect(self.download_open_menu)
-
         self.log_output.append(f"Загружен файл: {path}")
-        self.log_output.append(f"Строк: {len(self.reader.data_frame)}, столбцов: {self.reader.data_frame.shape[1]}")
+        self.log_output.append(
+            f"Строк: {len(self.reader.data_frame)}, столбцов: {self.reader.data_frame.shape[1]}"
+        )
 
     def download_open_menu(self, pos):
         if self.download_model is None:
