@@ -21,6 +21,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="add_app\dbc_client.py" />
+    <Compile Include="add_app\dbc_gui.py" />
+    <Compile Include="add_app\dbc_main.py" />
     <Compile Include="files_compressor.py" />
     <Compile Include="files_downloader.py" />
     <Compile Include="gui.py" />
@@ -40,11 +43,14 @@
     <Compile Include="workers\__init__.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include=".github\copilot-instructions.md" />
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="tabs\excel_to_json_tab.py" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include=".github\" />
+    <Folder Include="add_app\" />
     <Folder Include="workers\" />
     <Folder Include="tabs\" />
   </ItemGroup>

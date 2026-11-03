@@ -22,6 +22,7 @@ class ExcelToJsonWorker(QThread):
     log = Signal(str)
     finished = Signal()
     result = Signal(int)
+    json_created = Signal(str)
 
     def __init__(self, excel_path: str, output_dir: str, column_map: dict, catalog_name: str = "jenya123"):
         """
@@ -68,6 +69,9 @@ class ExcelToJsonWorker(QThread):
 
             db_parts = []
             total = len(data_df)
+
+            if total == 0:
+                self.log.emit("В файле нет строк для преобразования.")
 
             for i, (_, row) in enumerate(data_df.iterrows()):
                 if self.is_cancelled:
@@ -141,7 +145,7 @@ class ExcelToJsonWorker(QThread):
 
                 db_parts.append(db_part)
 
-                if i % 50 == 0:
+                if total and i % 50 == 0:
                     self.progress.emit(int((i / total) * 100))
 
             if self.is_cancelled:
@@ -161,6 +165,7 @@ class ExcelToJsonWorker(QThread):
                 json.dump(db_parts, f, ensure_ascii=False, indent=2)
 
             self.log.emit(f"✓ JSON для базы: {db_path.name}")
+            self.json_created.emit(str(db_path))
             self.log.emit(f"Всего записей: {len(db_parts)}")
             self.progress.emit(100)
             self.result.emit(len(db_parts))

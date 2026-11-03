@@ -7,6 +7,9 @@ from qtpy.QtCore import QAbstractTableModel, Qt
 from qtpy.QtGui import QColor
 
 import pandas as pd
+import subprocess
+import sys
+from pathlib import Path
 from workers.excel_to_json_worker import ExcelToJsonWorker
 from utils import create_header
 
@@ -90,74 +93,87 @@ class ExcelToJsonTab(QWidget):
         self.output_dir = None
         self.df = None
         self.model = None
+        self.generated_json_path = None
         self._setup_ui()
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.addLayout(create_header("Excel → JSON для базы данных"))
-        layout.addSpacing(15)
-
-        top = QHBoxLayout()
+        layout.setContentsMargins(12, 8, 12, 10)
+        layout.setSpacing(4)
         self.file_btn = QPushButton("Выбрать Excel файл")
-        self.file_btn.setFixedWidth(200)
+        self.file_btn.setFixedWidth(165)
+        self.file_btn.setMaximumHeight(32)
         self.file_btn.clicked.connect(self.select_file)
 
         self.folder_btn = QPushButton("Папка для сохранения")
-        self.folder_btn.setFixedWidth(200)
+        self.folder_btn.setFixedWidth(165)
+        self.folder_btn.setMaximumHeight(32)
         self.folder_btn.clicked.connect(self.select_folder)
 
-        top.addStretch()
-        top.addWidget(self.file_btn)
-        top.addSpacing(15)
-        top.addWidget(self.folder_btn)
-        top.addStretch()
-        layout.addLayout(top)
-        layout.addSpacing(15)
+        layout.addLayout(create_header(
+            "Excel → JSON для базы данных",
+            actions=[self.file_btn, self.folder_btn]
+        ))
+        layout.addSpacing(2)
 
         catalog_layout = QHBoxLayout()
+        catalog_layout.setSpacing(6)
         catalog_label = QLabel("Название каталога (catalog):")
         self.catalog_input = QLineEdit()
-        self.catalog_input.setFixedWidth(200)
+        self.catalog_input.setFixedWidth(165)
+        self.catalog_input.setMaximumHeight(32)
         self.catalog_input.setText("jenya123")
         self.catalog_input.setPlaceholderText("jenya123")
 
         catalog_layout.addStretch()
         catalog_layout.addWidget(catalog_label)
-        catalog_layout.addSpacing(10)
         catalog_layout.addWidget(self.catalog_input)
         catalog_layout.addStretch()
         layout.addLayout(catalog_layout)
-        layout.addSpacing(15)
+        layout.addSpacing(2)
 
         hint = QLabel("Правой кнопкой мыши по заголовку столбца назначьте роли")
         hint.setStyleSheet("color: gray;")
         hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(hint)
-        layout.addSpacing(10)
+        layout.addSpacing(2)
 
         self.table = QTableView()
         header = self.table.horizontalHeader()
         header.setContextMenuPolicy(Qt.CustomContextMenu)
         header.customContextMenuRequested.connect(self.open_column_menu)
-        layout.addWidget(self.table)
+        self.table.setMinimumHeight(160)
+        layout.addWidget(self.table, stretch=1)
 
         start_layout = QHBoxLayout()
+        start_layout.setSpacing(8)
         self.start_btn = QPushButton("Начать преобразование")
-        self.start_btn.setFixedWidth(260)
+        self.start_btn.setFixedWidth(210)
+        self.start_btn.setMaximumHeight(32)
         self.start_btn.clicked.connect(self.on_start_clicked)
         start_layout.addStretch()
         start_layout.addWidget(self.start_btn)
+        self.db_loader_btn = QPushButton("Открыть загрузчик базы данных")
+        self.db_loader_btn.setToolTip(
+            "Открыть приложение для просмотра, создания каталога и загрузки JSON в API"
+        )
+        self.db_loader_btn.setFixedWidth(250)
+        self.db_loader_btn.setMaximumHeight(30)
+        self.db_loader_btn.clicked.connect(self.open_db_loader)
+        start_layout.addWidget(self.db_loader_btn)
         start_layout.addStretch()
         layout.addLayout(start_layout)
-        layout.addSpacing(15)
+        layout.addSpacing(2)
 
         self.progress = QProgressBar()
+        self.progress.setMaximumHeight(14)
         layout.addWidget(self.progress)
-        layout.addSpacing(10)
+        layout.addSpacing(2)
 
         self.log = QTextEdit()
         self.log.setReadOnly(True)
-        layout.addWidget(self.log)
+        self.log.setMinimumHeight(160)
+        layout.addWidget(self.log, stretch=1)
 
     def select_file(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -171,9 +187,6 @@ class ExcelToJsonTab(QWidget):
             self.excel_path = path
             self.model = PandasModel(self.df.head(15))
             self.table.setModel(self.model)
-
-            header = self.table.horizontalHeader()
-            
 
             self.log.append(f"Загружен файл: {path}")
             self.log.append(f"Строк: {len(self.df)}, столбцов: {self.df.shape[1]}")
@@ -308,6 +321,7 @@ class ExcelToJsonTab(QWidget):
         self.worker.log.connect(self.log.append)
         self.worker.progress.connect(self.progress.setValue)
         self.worker.result.connect(lambda count: self.log.append(f"\n✅ Обработано записей: {count}"))
+        self.worker.json_created.connect(self.on_json_created)
         self.worker.finished.connect(self.on_finished)
         self.worker.start()
 
@@ -316,3 +330,24 @@ class ExcelToJsonTab(QWidget):
     def on_finished(self):
         self.start_btn.setText("Начать преобразование")
         self.progress.setValue(100)
+
+    def on_json_created(self, path):
+        self.generated_json_path = path
+        self.db_loader_btn.setToolTip(f"Открыть созданный файл: {path}")
+        self.log.append("Можно открыть загрузчик базы данных для отправки JSON в API.")
+
+    def open_db_loader(self):
+        loader_path = Path(__file__).resolve().parents[1] / "add_app" / "dbc_gui.py"
+        if not loader_path.is_file():
+            QMessageBox.critical(self, "Ошибка", f"Не найден загрузчик базы данных:\n{loader_path}")
+            return
+
+        command = [sys.executable, str(loader_path)]
+        if self.generated_json_path and Path(self.generated_json_path).is_file():
+            command.append(self.generated_json_path)
+
+        try:
+            subprocess.Popen(command, cwd=str(loader_path.parent))
+            self.log.append("Открыт загрузчик базы данных в отдельном окне.")
+        except OSError as error:
+            QMessageBox.critical(self, "Ошибка запуска", str(error))

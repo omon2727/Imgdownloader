@@ -11,6 +11,8 @@ class SplitTab(QWidget):
     def __init__(self):
         super().__init__()
         self.splitter_worker = None
+        self.split_input_file = None
+        self.split_output_dir = None
         self._setup_ui()
 
     def _setup_ui(self):
@@ -90,7 +92,7 @@ class SplitTab(QWidget):
             self.split_start_btn.setText("Начать разбивку")
             return
 
-        if not hasattr(self, 'split_input_file') or not hasattr(self, 'split_output_dir'):
+        if not self.split_input_file or not self.split_output_dir:
             QMessageBox.warning(self, "Ошибка", "Сначала выберите файл и папку!")
             return
 
@@ -113,5 +115,6 @@ class SplitTab(QWidget):
         self.split_start_btn.setText("Отмена")
 
     def split_on_finished(self):
-        self.split_progress.setValue(100)
+        if self.splitter_worker and not self.splitter_worker.is_cancelled:
+            self.split_progress.setValue(100)
         self.split_start_btn.setText("Начать разбивку")

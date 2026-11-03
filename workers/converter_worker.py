@@ -52,6 +52,7 @@ class ConverterWorker(QThread):
                 self.result.emit(0)
                 return
 
+            processed_files = 0
             for i, file_path in enumerate(excel_files, 1):
                 if self.is_cancelled:
                     self.log.emit("Конвертация отменена.")
@@ -73,12 +74,13 @@ class ConverterWorker(QThread):
                     )
 
                     self.log.emit(f" ✓ Готово: {output_filename} ({len(df)} строк)")
+                    processed_files += 1
                     self.progress.emit(int((i / len(excel_files)) * 100))
 
                 except Exception as e:
                     self.log.emit(f" ✗ Ошибка {file_path.name}: {e}")
 
-            self.result.emit(len(excel_files))
+            self.result.emit(processed_files)
             self.log.emit("\n✅ Конвертация завершена!")
             self.log.emit(f"Результаты в: {output_folder}")
 

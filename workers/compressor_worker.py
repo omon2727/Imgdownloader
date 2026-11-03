@@ -19,14 +19,14 @@ class CompressorWorker(QThread):
         self.is_running = True
         try:
             self.compressor.log_callback = self._on_file_packed
-            self.compressor.run()
+            files_count = self.compressor.run()
 
             if self.compressor._cancelled:
                 self.was_cancelled = True
                 self.cancelled.emit()
             else:
                 self.log.emit("Архивирование завершено успешно!")
-                self.result.emit(self.compressor.all_files_count, 0)
+                self.result.emit(files_count or 0, 0)
         except Exception as e:
             self.log.emit(f"Ошибка при архивировании: {str(e)}")
             self.result.emit(0, 1)

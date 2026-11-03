@@ -7,14 +7,14 @@ import shutil
 import subprocess
 import urllib.request
 from pathlib import Path
-from typing import List, TypedDict, Dict
+from typing import List, TypedDict, Dict, Optional, Callable
 from urllib.parse import urlparse
 
 
 class DownloadableItemDict(TypedDict):
     url: str
     file_name: str
-    brand: str or None
+    brand: Optional[str]
 
 
 class FileDownloader:
@@ -40,11 +40,11 @@ class FileDownloader:
     }
 
     def __init__(self):
-        self.path2download_dir: str or None = None
-        self.errors: list = []
+        self.path2download_dir: Optional[str] = None
+        self.errors: list[str] = []
         self.total_items_count: int = 0
         self.process_items_count: int = 0
-        self.log_callback = None
+        self.log_callback: Optional[Callable[..., None]] = None
         self.is_cancelled: bool = False
         self.skip_existing: bool = False
         self._name_counters: Dict[str, int] = {}

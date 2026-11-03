@@ -13,6 +13,7 @@ from tabs.excel_to_json_tab import ExcelToJsonTab
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
+        self.setObjectName("appRoot")
 
         icon_path = get_resource_path("logo.png")
         if os.path.exists(icon_path):

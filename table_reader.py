@@ -1,8 +1,10 @@
 from pathlib import Path
+import os
 import pandas as pd
 import re
 from files_downloader import DownloadableItemDict
-from typing import List
+from typing import List, Optional
+from urllib.parse import urlparse
 
 
 class UniversalTableReader:
@@ -12,12 +14,12 @@ class UniversalTableReader:
 
     def __init__(self, encoding="utf-8"):
         self.encoding: str = encoding
-        self.data_frame: pd.DataFrame or None = None
-        self.filenames_column_index: int or None = None
-        self.urls_column_index: int or None = None
-        self.brands_column_index: int or None = None
-        self.download_dir: str or None = None
-        self.urls_delimiter: str or None = None
+        self.data_frame: Optional[pd.DataFrame] = None
+        self.filenames_column_index: Optional[int] = None
+        self.urls_column_index: Optional[int] = None
+        self.brands_column_index: Optional[int] = None
+        self.download_dir: Optional[str] = None
+        self.urls_delimiter: Optional[str] = None
         self.headers_column: bool = True
 
     def read_file(self, file_path, **kwargs) -> None:
@@ -124,7 +126,7 @@ class UniversalTableReader:
     @staticmethod
     def _get_extension(url: str) -> str:
         """Определяет расширение из URL"""
-        path = Path(url)
+        path = Path(urlparse(url).path)
         ext = path.suffix.lower()
         if ext in {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.tiff', '.avif'}:
             return ext

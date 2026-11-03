@@ -18,13 +18,18 @@ class Compressor:
     def cancel(self):
         self._cancelled = True
 
-    def _split_into_chunks_batch(self) -> list[list]:
+    def _split_into_chunks_batch(self) -> list[list[str]]:
         if not self.path2dir:
             raise ValueError('self.path2dir is None')
-        file_list = os.listdir(self.path2dir)
+        file_list = [
+            entry.name for entry in Path(self.path2dir).iterdir()
+            if entry.is_file() and entry.suffix.lower() != ".zip"
+        ]
         if not self.pack:
             raise ValueError('self.pack_files is None')
         self.all_files_count = len(file_list)
+        if self.all_files_count == 0:
+            return []
 
         if self.all_files_count <= self.pack:
             return [[os.path.join(self.path2dir, file_name) for file_name in file_list]]
@@ -42,12 +47,23 @@ class Compressor:
         return result
 
     def _pack_files(self, files: list, archive_name: str):
-        with zipfile.ZipFile(os.path.join(self.path2dir, archive_name), 'w', zipfile.ZIP_DEFLATED) as zipf:
-            for file_path in files:
+        archive_path = os.path.join(self.path2dir, archive_name)
+        try:
+            with zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for file_path in files:
+                    if self._cancelled:
+                        return False
 
-                if self._cancelled:
-                    return  # stop
+                    file_name = Path(file_path).name
+                    zipf.write(file_path, arcname=file_name)
+                    self.files_count += 1
 
+                    if self.log_callback:
+                        self.log_callback(file_name)
+            return True
+        finally:
+            if self._cancelled and os.path.exists(archive_path):
+                os.remove(archive_path)
                 # add file to archive
                 file_name = Path(file_path).name
                 zipf.write(file_path, arcname=file_name)
@@ -65,16 +81,17 @@ class Compressor:
 
     def run(self):
 
-        files: list[list] = self._split_into_chunks_batch()
+        files = self._split_into_chunks_batch()
+        self.files_count = 0
+        if not files:
+            return 0
         if len(files) == 1:
-            archive_path = os.path.join(self.path2dir, f"{self.archive_name}.zip")
-            self._pack_files(files[0], archive_path)
-            self.reset_values()
-            return
+            archive_name = f"{self.archive_name}.zip"
+            self._pack_files(files[0], archive_name)
+            return self.all_files_count
         for i in range(len(files)):
             if self._cancelled:
-                return
-            archive_path = os.path.join(self.path2dir, f"{self.archive_name}_{str(i)}.zip")
-            self._pack_files(files[i], archive_path)
-        self.reset_values()
-        return
+                return self.files_count
+            archive_name = f"{self.archive_name}_{str(i + 1)}.zip"
+            self._pack_files(files[i], archive_name)
+        return self.files_count

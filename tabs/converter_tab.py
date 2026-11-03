@@ -11,6 +11,7 @@ class ConverterTab(QWidget):
     def __init__(self):
         super().__init__()
         self.converter_worker = None
+        self.conv_folder = None
         self._setup_ui()
 
     def _setup_ui(self):
@@ -71,7 +72,7 @@ class ConverterTab(QWidget):
             self.conv_start_btn.setText("Начать конвертацию")
             return
 
-        if not hasattr(self, 'conv_folder'):
+        if not self.conv_folder:
             QMessageBox.warning(self, "Ошибка", "Сначала выберите папку с Excel файлами!")
             return
 
