@@ -1,3 +1,5 @@
+import os
+
 from qtpy.QtWidgets import (
     QWidget, QPushButton, QVBoxLayout, QHBoxLayout,
     QFileDialog, QMessageBox, QTableView, QLabel, QMenu,
@@ -159,6 +161,13 @@ class DownloadTab(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Ошибка", str(e))
             return
+
+        # По умолчанию сохраняем загрузки в папку с именем выбранного файла.
+        # Пользователь может изменить папку кнопкой «Папка для скачивания».
+        file_dir = os.path.dirname(os.path.abspath(path))
+        folder_name = os.path.splitext(os.path.basename(path))[0]
+        self.reader.download_dir = os.path.join(file_dir, folder_name)
+        os.makedirs(self.reader.download_dir, exist_ok=True)
 
         # сброс назначений при новом файле
         self.reader.urls_column_index = None

@@ -6,8 +6,9 @@ import re
 import shutil
 import subprocess
 import urllib.request
+from http.cookies import SimpleCookie
 from pathlib import Path
-from typing import List, TypedDict, Dict, Optional, Callable
+from typing import List, TypedDict, Dict, Optional, Callable, Tuple
 from urllib.parse import urlparse
 
 
@@ -19,7 +20,8 @@ class DownloadableItemDict(TypedDict):
 
 class FileDownloader:
     __batch_size = 10
-    __max_retries = 3
+    __max_retries = 4
+    __max_cookie_refreshes = 2  # сколько раз подряд обрабатываем заглушку с cookie на один файл
     __retry_delay = 1.5
 
     DEFAULT_HEADERS = {
@@ -30,14 +32,10 @@ class FileDownloader:
         ),
         "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.9,ru;q=0.8",
-        "Connection": "keep-alive",
-        "Sec-Ch-Ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
-        "Sec-Ch-Ua-Mobile": "?0",
-        "Sec-Ch-Ua-Platform": '"Windows"',
-        "Sec-Fetch-Dest": "image",
-        "Sec-Fetch-Mode": "no-cors",
-        "Sec-Fetch-Site": "cross-site",
     }
+
+    # Заглушка вида: document.cookie = 'dhd2=abc; max-age=86400; path=/; domain=example.com'
+    _STUB_COOKIE_RE = re.compile(r"""document\.cookie\s*=\s*(['"])(.+?)\1""", re.DOTALL)
 
     def __init__(self):
         self.path2download_dir: Optional[str] = None
@@ -106,6 +104,62 @@ class FileDownloader:
         host = (urlparse(url).netloc or "").lower()
         return "revolutionparts" in host
 
+    @staticmethod
+    def _is_html_bytes(head: bytes) -> bool:
+        head = head.lstrip().lower()
+        return head.startswith((b"<!doctype html", b"<html", b"<head"))
+
+    def _is_html_file(self, path: str) -> bool:
+        try:
+            with open(path, "rb") as f:
+                return self._is_html_bytes(f.read(512))
+        except Exception:
+            return False
+
+    @classmethod
+    def _parse_js_cookie(cls, html: str) -> Optional[Tuple[str, str, Dict[str, str]]]:
+        """Достаёт cookie из страницы-заглушки, которая ставит её через JS.
+
+        Возвращает (имя, значение, атрибуты) или None, если в странице такого скрипта нет.
+        """
+        m = cls._STUB_COOKIE_RE.search(html)
+        if not m:
+            return None
+        parts = [p.strip() for p in m.group(2).split(";") if p.strip()]
+        if not parts or "=" not in parts[0]:
+            return None
+        name, value = parts[0].split("=", 1)
+        name, value = name.strip(), value.strip()
+        if not name:
+            return None
+        attrs: Dict[str, str] = {}
+        for p in parts[1:]:
+            if "=" in p:
+                k, v = p.split("=", 1)
+                attrs[k.strip().lower()] = v.strip()
+        return name, value, attrs
+
+    @staticmethod
+    def _apply_js_cookie(session: aiohttp.ClientSession, response_url,
+                         parsed: Tuple[str, str, Dict[str, str]]) -> bool:
+        """Кладёт cookie из заглушки в cookie jar сессии (аналог document.cookie в браузере)."""
+        name, value, attrs = parsed
+        try:
+            host = (response_url.host or "").lower()
+            c = SimpleCookie()
+            c[name] = value
+            c[name]["path"] = attrs.get("path", "/")
+            domain = attrs.get("domain", "").lstrip(".").lower()
+            # домен принимаем только если он относится к хосту ответа, как это делает браузер
+            if domain and (host == domain or host.endswith("." + domain)):
+                c[name]["domain"] = domain
+            if "max-age" in attrs:
+                c[name]["max-age"] = attrs["max-age"]
+            session.cookie_jar.update_cookies(c, response_url)
+            return True
+        except Exception:
+            return False
+
     def _build_headers(self, url: str) -> dict:
         headers = dict(self.DEFAULT_HEADERS)
         try:
@@ -146,7 +200,12 @@ class FileDownloader:
             if os.name == "nt":
                 kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
             result = subprocess.run(cmd, **kwargs)
-            if result.returncode == 0 and os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+            if (
+                result.returncode == 0
+                and os.path.exists(filepath)
+                and os.path.getsize(filepath) > 0
+                and not self._is_html_file(filepath)
+            ):
                 return True
         except Exception:
             pass
@@ -165,7 +224,7 @@ class FileDownloader:
             req = urllib.request.Request(url, headers=headers)
             with urllib.request.urlopen(req, timeout=60) as resp:
                 data = resp.read()
-            if not data:
+            if not data or self._is_html_bytes(data[:512]):
                 return False
             with open(filepath, "wb") as f:
                 f.write(data)
@@ -203,14 +262,49 @@ class FileDownloader:
 
         last_error = None
         need_fallback = False
+        attempt = 0
+        cookie_refreshes = 0
 
-        for attempt in range(1, self.__max_retries + 1):
+        while attempt < self.__max_retries:
+            attempt += 1
             if self.is_cancelled:
                 return
 
             try:
                 async with session.get(url, headers=headers, allow_redirects=True) as response:
                     if self.is_cancelled:
+                        self.process_items_count += 1
+                        return
+
+                    content_type = response.headers.get("Content-Type", "").lower()
+
+                    # --- Заглушка: сайт отдаёт 202/HTML и ставит cookie через JS ---
+                    if response.status == 202 or (
+                        response.status == 200 and content_type.startswith("text/html")
+                    ):
+                        html = await response.text(errors="ignore")
+                        parsed = self._parse_js_cookie(html)
+
+                        if parsed and cookie_refreshes < self.__max_cookie_refreshes:
+                            if self._apply_js_cookie(session, response.url, parsed):
+                                cookie_refreshes += 1
+                                attempt -= 1  # обработка заглушки не считается неудачной попыткой
+                                last_error = f"{url} -> заглушка, cookie '{parsed[0]}' применена"
+                                continue
+
+                        if response.status == 202:
+                            last_error = (
+                                f"{url} -> HTTP 202 (сервер вернул заглушку вместо изображения)"
+                            )
+                            if attempt < self.__max_retries:
+                                await asyncio.sleep(self.__retry_delay * attempt)
+                                continue
+                            break
+
+                        msg = f"{url} -> HTML-страница вместо изображения (HTTP 200)"
+                        self.errors.append(f"> {msg}")
+                        if self.log_callback:
+                            self.log_callback(url, False)
                         self.process_items_count += 1
                         return
 
@@ -230,8 +324,16 @@ class FileDownloader:
                         self.process_items_count += 1
                         return
 
+                    head = await response.content.read(512)
+                    if self._is_html_bytes(head):
+                        msg = f"{url} -> HTML-страница вместо изображения (HTTP 200)"
+                        self.errors.append(f"> {msg}")
+                        if self.log_callback:
+                            self.log_callback(url, False)
+                        self.process_items_count += 1
+                        return
+
                     if not Path(final_file_name).suffix:
-                        content_type = response.headers.get("content-type", "")
                         if "webp" in content_type:
                             final_file_name += ".webp"
                             filepath += ".webp"
@@ -243,6 +345,7 @@ class FileDownloader:
                             filepath += ".png"
 
                     async with aiofiles.open(filepath, "wb") as f:
+                        await f.write(head)
                         async for chunk in response.content.iter_chunked(8192):
                             if self.is_cancelled:
                                 try:
@@ -295,6 +398,8 @@ class FileDownloader:
 
         timeout = aiohttp.ClientTimeout(total=90, sock_connect=20)
 
+        # Одна сессия на весь запуск: cookie из заглушки хранится в её cookie jar
+        # и используется для всех следующих картинок.
         async with aiohttp.ClientSession(
             timeout=timeout,
             headers=self.DEFAULT_HEADERS

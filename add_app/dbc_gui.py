@@ -33,6 +33,11 @@ DEFAULT_CATALOG = "jenya123"
 
 
 class App(tk.Tk):
+    _russian_shortcuts = dict(zip(
+        "йцукенгшщзхъфывапролджэячсмитьбю",
+        "qwertyuiop[]asdfghjkl;'zxcvbnm,."
+    ))
+
     def __init__(self, initial_json_path=None):
         super().__init__()
         self.title("REMZONA Data Loader")
@@ -48,9 +53,69 @@ class App(tk.Tk):
         self.server_process = None
 
         self._build_ui()
+        self._install_keyboard_shortcuts()
         if initial_json_path:
             self.load_json(initial_json_path)
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+    def _install_keyboard_shortcuts(self):
+        self.bind_all("<Control-KeyPress>", self._handle_russian_shortcut, add="+")
+
+    def _handle_russian_shortcut(self, event):
+        # При Ctrl+буква Tk на Windows обычно кладёт в event.char код
+        # управляющего символа (Ctrl+C -> ``\x03``), а keysym может быть
+        # не русским именем. keycode при этом остаётся Windows VK-кодом
+        # клавиши (A..Z), поэтому именно он надёжно определяет shortcut.
+        russian_char = (event.char or "").lower()
+        key = self._russian_shortcuts.get(russian_char)
+        if not key:
+            keycode = getattr(event, "keycode", 0)
+            keysym = (event.keysym or "").lower()
+            # Для русской раскладки keysym обычно начинается с
+            # ``cyrillic_``; при Ctrl он также может стать именем
+            # управляющего символа, поэтому проверяем и control-char.
+            is_control_char = bool(russian_char) and ord(russian_char[0]) < 0x20
+            # Не перехватываем обычные Ctrl+C/V/... в английской
+            # раскладке: их уже обрабатывают стандартные class bindings.
+            # При русской раскладке keysym либо Cyrillic_*, либо Tk
+            # возвращает служебное/не-ASCII имя, а VK-код всё ещё A..Z.
+            has_non_latin_keysym = not (
+                len(keysym) == 1 and keysym.isascii() and keysym.isalpha()
+            )
+            if keysym.startswith("cyrillic_") or (is_control_char and has_non_latin_keysym):
+                # На Windows это виртуальные коды VK_A..VK_Z, а не
+                # Unicode-коды русских букв.
+                if 0x41 <= keycode <= 0x5A:
+                    key = chr(keycode).lower()
+        if not key or not key.isalpha():
+            return None
+
+        widget = self.focus_get()
+        if widget is None:
+            return "break"
+
+        if key == "a":
+            if isinstance(widget, tk.Text):
+                widget.tag_add(tk.SEL, "1.0", "end-1c")
+                widget.mark_set(tk.INSERT, "end-1c")
+            elif hasattr(widget, "selection_range"):
+                widget.selection_range(0, tk.END)
+            return "break"
+
+        virtual_event = {
+            "c": "<<Copy>>",
+            "v": "<<Paste>>",
+            "x": "<<Cut>>",
+            "z": "<<Undo>>",
+            "y": "<<Redo>>",
+        }.get(key)
+        if virtual_event:
+            # ``tail`` не пытается обработать виртуальное событие внутри
+            # текущего KeyPress и сохраняет focus на исходном виджете.
+            widget.event_generate(virtual_event, when="tail")
+            return "break"
+
+        return None
 
     def _build_ui(self):
         # --- Верхняя панель: выбор файла ---

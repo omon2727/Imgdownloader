@@ -24,6 +24,7 @@
     <Compile Include="add_app\dbc_client.py" />
     <Compile Include="add_app\dbc_gui.py" />
     <Compile Include="add_app\dbc_main.py" />
+    <Compile Include="add_app\__init__.py" />
     <Compile Include="files_compressor.py" />
     <Compile Include="files_downloader.py" />
     <Compile Include="gui.py" />

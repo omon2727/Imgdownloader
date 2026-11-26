@@ -185,6 +185,7 @@ class ExcelToJsonTab(QWidget):
         try:
             self.df = pd.read_excel(path, header=None)
             self.excel_path = path
+            self.output_dir = str(Path(path).resolve().parent)
             self.model = PandasModel(self.df.head(15))
             self.table.setModel(self.model)
 
@@ -194,7 +195,9 @@ class ExcelToJsonTab(QWidget):
             QMessageBox.critical(self, "Ошибка", str(e))
 
     def select_folder(self):
-        directory = QFileDialog.getExistingDirectory(self, "Выберите папку для сохранения")
+        directory = QFileDialog.getExistingDirectory(
+            self, "Выберите папку для сохранения", self.output_dir or ""
+        )
         if directory:
             self.output_dir = directory
             self.log.append(f"Папка сохранения: {directory}")
@@ -337,17 +340,26 @@ class ExcelToJsonTab(QWidget):
         self.log.append("Можно открыть загрузчик базы данных для отправки JSON в API.")
 
     def open_db_loader(self):
-        loader_path = Path(__file__).resolve().parents[1] / "add_app" / "dbc_gui.py"
-        if not loader_path.is_file():
-            QMessageBox.critical(self, "Ошибка", f"Не найден загрузчик базы данных:\n{loader_path}")
-            return
+        # Загрузчик запускается как режим текущего приложения. В frozen-сборке
+        # рядом с exe нет исходников add_app/dbc_gui.py, поэтому запуск файла
+        # по пути работает только из исходного дерева проекта.
+        project_root = Path(__file__).resolve().parents[1]
+        if getattr(sys, "frozen", False):
+            command = [sys.executable, "--db-loader"]
+            working_directory = Path(sys.executable).parent
+        else:
+            run_path = project_root / "run.py"
+            if not run_path.is_file():
+                QMessageBox.critical(self, "Ошибка", f"Не найдена точка входа приложения:\n{run_path}")
+                return
+            command = [sys.executable, str(run_path), "--db-loader"]
+            working_directory = project_root
 
-        command = [sys.executable, str(loader_path)]
         if self.generated_json_path and Path(self.generated_json_path).is_file():
             command.append(self.generated_json_path)
 
         try:
-            subprocess.Popen(command, cwd=str(loader_path.parent))
+            subprocess.Popen(command, cwd=str(working_directory))
             self.log.append("Открыт загрузчик базы данных в отдельном окне.")
         except OSError as error:
             QMessageBox.critical(self, "Ошибка запуска", str(error))

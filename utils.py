@@ -2,8 +2,8 @@
 import sys
 import os
 from qtpy.QtWidgets import QHBoxLayout, QLabel, QApplication
-from qtpy.QtCore import Qt
-from qtpy.QtGui import QPixmap, QFont
+from qtpy.QtCore import QEvent, QObject, Qt
+from qtpy.QtGui import QKeyEvent, QPixmap, QFont
 
 
 def get_resource_path(relative_path):
@@ -13,8 +13,67 @@ def get_resource_path(relative_path):
     return relative_path
 
 
+class _RussianShortcutFilter(QObject):
+    """Позволяет стандартным Qt-сочетаниям работать в русской раскладке."""
+
+    _layout_map = dict(zip(
+        "йцукенгшщзхъфывапролджэячсмитьбю",
+        "qwertyuiop[]asdfghjkl;'zxcvbnm,."
+    ))
+
+    def eventFilter(self, watched, event):
+        if event.type() != QEvent.Type.KeyPress:
+            return super().eventFilter(watched, event)
+
+        modifiers = event.modifiers()
+        if not (modifiers & Qt.KeyboardModifier.ControlModifier):
+            return super().eventFilter(watched, event)
+
+        # Ctrl+Alt используется Windows для AltGr и не должно изменяться.
+        if modifiers & Qt.KeyboardModifier.AltModifier:
+            return super().eventFilter(watched, event)
+
+        # При Ctrl Windows/Qt часто отдаёт в text() управляющий символ
+        # (например, ``\x03`` для Ctrl+C), поэтому text() нельзя использовать
+        # как единственный источник раскладки.  nativeVirtualKey содержит
+        # физическую клавишу Windows и остаётся доступным в этом случае.
+        russian_key = event.text().lower()
+        latin_key = self._layout_map.get(russian_key)
+        if not latin_key:
+            native_key = event.nativeVirtualKey()
+            if 0x41 <= native_key <= 0x5A:
+                candidate = chr(native_key).lower()
+                # Для английской раскладки Qt уже обрабатывает событие сам.
+                # Переводим только клавишу, которую Qt не распознал как
+                # обычную латинскую (русская раскладка).
+                latin_enum = getattr(Qt.Key, f"Key_{candidate.upper()}", None)
+                if latin_enum is not None and event.key() != latin_enum:
+                    latin_key = candidate
+        if not latin_key or not latin_key.isalpha():
+            return super().eventFilter(watched, event)
+
+        key_enum = getattr(Qt.Key, f"Key_{latin_key.upper()}", None)
+        if key_enum is None:
+            return super().eventFilter(watched, event)
+
+        translated_event = QKeyEvent(
+            QEvent.Type.KeyPress,
+            key_enum,
+            modifiers,
+            latin_key,
+            event.isAutoRepeat(),
+            event.count(),
+        )
+        QApplication.sendEvent(watched, translated_event)
+        return True
+
+
 def apply_app_style(app: QApplication) -> None:
     """Apply a compact, classic desktop visual style to the application."""
+    # Сохраняем фильтр на объекте приложения, чтобы он не был уничтожен
+    # сборщиком мусора после установки.
+    app._russian_shortcut_filter = _RussianShortcutFilter(app)
+    app.installEventFilter(app._russian_shortcut_filter)
     app.setStyle("Fusion")
     app.setStyleSheet(
         """

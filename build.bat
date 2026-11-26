@@ -36,6 +36,8 @@ pyinstaller --onefile --windowed --clean ^
   --icon=%ICON% ^
   --add-data "logo.png;." ^
   --add-data "logo.ico;." ^
+  --hidden-import=add_app.dbc_gui ^
+  --hidden-import=add_app.dbc_client ^
   --manifest filedownloader.manifest ^
   run.py
 
